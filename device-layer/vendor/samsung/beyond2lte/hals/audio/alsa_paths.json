@@ -1,0 +1,138 @@
+{
+    "hdf_audio_codec_primary_dev0": [
+        {
+            "deep-buffer-playback": [
+                {
+                    "Speaker": [
+                        {
+                            "name": "Ext_Speaker_Amp Switch",
+                            "value": "1"
+                        }
+                    ],
+                    "Headphones": [
+                        {
+                            "name": "HPL Mux",
+                            "value": "2"
+                        },
+                        {
+                            "name": "HPR Mux",
+                            "value": "2"
+                        }
+                    ],
+                    "MIC": [
+                        {
+                            "name": "Mic Type Mux",
+                            "value": "1"
+                        },
+                        {
+                            "name": "PGA L Mux",
+                            "value": "1"
+                        },
+                        {
+                            "name": "PGA R Mux",
+                            "value": "1"
+                        }
+                    ]
+                }
+            ],
+            "low-latency-communication": [
+                {
+                    "Speaker": [
+                        {
+                            "name": "Ext_Speaker_Amp Switch",
+                            "value": "1"
+                        }
+                    ],
+                    "Headphones": [
+                        {
+                            "name": "HPL Mux",
+                            "value": "2"
+                        },
+                        {
+                            "name": "HPR Mux",
+                            "value": "2"
+                        }
+                    ],
+                    "MIC": [
+                        {
+                            "name": "Mic Type Mux",
+                            "value": "1"
+                        },
+                        {
+                            "name": "PGA L Mux",
+                            "value": "1"
+                        },
+                        {
+                            "name": "PGA R Mux",
+                            "value": "1"
+                        }
+                    ]
+                }
+            ],
+            "ringtone-playback": [
+                {
+                    "Speaker": [
+                        {
+                            "name": "Ext_Speaker_Amp Switch",
+                            "value": "1"
+                        }
+                    ]
+                }
+            ],
+            "voice-call": [
+                {
+                    "Speaker": [
+                        {
+                            "name": "Ext_Speaker_Amp Switch",
+                            "value": "1"
+                        }
+                    ],
+                    "Headphones": [
+                        {
+                            "name": "HPL Mux",
+                            "value": "2"
+                        },
+                        {
+                            "name": "HPR Mux",
+                            "value": "2"
+                        }
+                    ],
+                    "MIC": [
+                        {
+                            "name": "Mic Type Mux",
+                            "value": "1"
+                        },
+                        {
+                            "name": "PGA L Mux",
+                            "value": "1"
+                        },
+                        {
+                            "name": "PGA R Mux",
+                            "value": "1"
+                        }
+                    ]
+                }
+            ],
+            "low-latency-noirq-playback": [
+                {
+                    "Speaker": [
+                        {
+                            "name": "Ext_Speaker_Amp Switch",
+                            "value": "1"
+                        }
+                    ],
+                    "Headphones": [
+                        {
+                            "name": "HPL Mux",
+                            "value": "2"
+                        },
+                        {
+                            "name": "HPR Mux",
+                            "value": "2"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

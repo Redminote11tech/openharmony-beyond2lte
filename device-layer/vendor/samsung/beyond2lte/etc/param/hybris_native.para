@@ -1,0 +1,110 @@
+# Copyright (c) 2026 Eclipse Oniro for OpenHarmony contributors.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Phase N7.2 — Native-boot params for hybris_generic.
+#
+# Loaded into the OHOS param service via ohos_prebuilt_etc → /sys_prod/etc/param/.
+# Overrides product_hybris_generic.para's LXC-era defaults.
+#
+# Sticky on the eng build; production rollouts must add a settings UI to flip
+# const.security.developermode.state and persist.hdc.mode.usb.
+
+# HDC over USB (Phase N7) — replaces TCP-only setup that worked under LXC.
+persist.hdc.mode.usb = "enable"
+
+# Keep TCP enabled too (debug fallback when USB role-switch is host-mode).
+persist.hdc.mode.tcp = "enable"
+
+# Developer mode (Phase N7.2). On unset, hdcd accepts the FFS endpoint binding
+# but rejects all inbound shell connections — see project memory hdc_connection.
+const.security.developermode.state = "true"
+
+# Enable the phone launcher's windowAnimationManager controller, which claims
+# the WMS remote-animation slot: it renders the appearing app via a RemoteWindow
+# proxy (so apps still open) and no-ops minimize/close, so the legacy default
+# app-close zoom (window_manager_config.xml <windowAnimation>) never plays —
+# leaving the systemui swipe-up gesture as the sole home animation (no duplicate
+# zoom). Gated by EntryView so it stays a kill-switch; requires the graphic_2d
+# rs_window_animation_controller thread-safety fix to be present (it is, in
+# tree) or the launcher crash-loops in libace_napi. NB: while this controller is
+# registered, reopening a backgrounded app blanks the status bar ~1.2s (the
+# remote-animation path hits the build's RS/vsync stall) — accepted limitation.
+# See project memory winanim_controller_native_boot.
+persist.oniro.winanim_controller = "1"
+
+# Disable GWP-ASan globally. appspawn always loads libappspawn_asan.z.so, whose
+# AsanSpawnInitSpawningEnv hook unconditionally calls musl's may_init_gwp_asan()
+# on every process spawn (the call sits outside the ASAN_DETECTOR guard). On this
+# arm64 build (musl_use_gwp_asan=true) that sampling/telemetry path intermittently
+# SIGSEGVs in strcmp during spawn — it flaky-killed com.ohos.sceneboard on launch,
+# leaving the home dead and bootanimation frozen. Setting this makes
+# is_gwp_asan_disable() short-circuit may_init_gwp_asan() before the fault, so the
+# ASAN spawn hook becomes a no-op. Leaves the (asan_detector-gated) ASAN cold-start
+# machinery untouched. See project memory hybris-lts-rebase (SceneBoard trial).
+gwp_asan.disable.all = "true"
+
+# SceneBoard/phone form-factor params (mirrors vendor/revoview/wukong100 etc/param/phone.para).
+# const.window.multiWindowUIType selects the device form factor consumed by AMS + window_manager
+# (scene_session_manager) + SceneBoard; without it they fall back to a non-phone default. The
+# enable_uiservice=false pair keeps the legacy UIService off. Needed for the SceneBoard phone
+# keyguard/desktop scene to initialize correctly. See project memory hybris-lts-rebase.
+const.window.multiWindowUIType = "HandsetSmartWindow"
+const.abilityms.enable_uiservice = "false"
+const.product.preview.enable_uiservice = "false"
+const.product.preview.device_config = "2"
+persist.systemui.live2 = "true"
+
+# Disable RS "uifirst" parallel rendering (P6, ansuz bring-up). The uifirst
+# sub-threads create shared EGL contexts off the main render thread; under
+# libhybris + the Mali G615 Android-14 EGL that share-context never becomes
+# current on the sub-thread, so the first GL call goes through the Android EGL
+# "no context" dispatch stubs (bionic TLS vs musl) and render_service SIGSEGVs
+# (RSSubThread::CreateShareGrContext -> GrGLInterfaces::MakeEGL). Main-thread
+# rendering is unaffected. Re-evaluate when the share-context path is fixed.
+rosen.ui.first.enabled = "0"
+
+# Disable RS unified-render partial rendering (dirty regions). RS redraws only
+# the damaged region of the client-target swapchain buffer and relies on EGL
+# buffer-age semantics for the rest; under libhybris (Android EGL on both the
+# Mali-G57 X23 and Mali-G615 ansuz) the un-redrawn region comes back stale
+# (a frame from N swaps ago), visible as half-screen ghosting/flicker under
+# sustained motion — clearest in bootanimation's spinning logo, present on both
+# devices since the SceneBoard (uniRender) switch. Full redraw per frame costs
+# some GPU/power but composes correctly. Re-evaluate if the hybris EGL
+# buffer-age path (EGL_EXT_buffer_age on the client target surface) gets fixed.
+rosen.uni.partialrender.enabled = "0"
+
+# Which library backs the primary audio HDI adapter. Empty (the default) keeps
+# the in-tree community implementation with the direct-ALSA backend, which is
+# what the X23 runs. "vdi" selects libaudio_primary_impl_vdi.z.so — upstream's
+# VDI dispatcher, under which libaudio_primary_impl.z.so wraps the Android
+# audio HAL from the Halium vendor partition. Set per device from
+# init.<device>.cfg, never here, since one image serves both boards.
+# See docs/hybris_generic/audio_hal_switch_plan.md.
+ohos.audio.hdi_impl = ""
+
+# Which library backs the camera HDI. Empty (the default) leaves the hybris
+# camera VDI dormant: camera_host still binds and loads it, but it reports no
+# cameras, which is the pre-bridge behaviour. "vdi" turns it into a camera2-NDK
+# client of the Halium container's CameraService. Set per device from
+# init.<device>.cfg, never here, since one image serves both boards; the X23
+# stays dormant until its (Halium-12) camera stack has been tested.
+# See docs/hybris_generic/camera_enablement_plan.md.
+ohos.camera.hdi_impl = ""
+
+# NOTE — const.sys.radio.vendorlib.path is deliberately NOT declared here.
+#
+# It names the library riladapter_host loads as the vendor RIL: hril_hdf's
+# LoadVendor() dlopens it and resolves RilInitOps() from it. init.ansuz.cfg
+# sets it to libril_vendor_hybris.z.so, the bridge from HRil's vendor ABI to
+# the Halium container's AIDL android.hardware.radio v2 HAL; on the X23 it
+# stays unset, LoadVendor() logs "no vendor lib" and the host idles — that
+# board's behaviour today.
+#
+# Declaring it here with an empty default does NOT work, and the failure is
+# silent: `const.*` parameters are write-once, this file is loaded before the
+# pre-init job runs, so the empty value wins and init.ansuz.cfg's setparam is
+# dropped. GetVendorLibPath() then sees a zero-length string and reports "no
+# vendor lib" — riladapter_host starts, loads nothing, and there is no
+# cellular. Leave it undeclared so the per-device setparam is the first
+# writer. See docs/hybris_generic/cellular_enablement_plan.md §D1.

@@ -1,0 +1,65 @@
+From 22c3327346847f41c35a7f054d90990d8c36d0fd Mon Sep 17 00:00:00 2001
+From: redminote11tech <redminote11tech@users.noreply.github.com>
+Date: Wed, 23 Sep 2026 17:05:17 +0100
+Subject: [PATCH 5/8] khdf vnode adapter: use kernel cmpxchg/smp_mb for GCC16
+ aarch64
+
+__sync_bool_compare_and_swap on uint32 ring cursors lowers to
+__aarch64_cas4_sync (libatomic) with GCC16; kernel primitives provide
+the same semantics in-kernel.
+---
+ .../core/adapter/vnode/src/hdf_vnode_adapter.c        | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/hdf/framework/core/adapter/vnode/src/hdf_vnode_adapter.c b/drivers/hdf/framework/core/adapter/vnode/src/hdf_vnode_adapter.c
+index 066479e55..a88b6005c 100644
+--- a/drivers/hdf/framework/core/adapter/vnode/src/hdf_vnode_adapter.c
++++ b/drivers/hdf/framework/core/adapter/vnode/src/hdf_vnode_adapter.c
+@@ -1,3 +1,4 @@
++#include <linux/atomic.h>
+ /*
+  * Copyright (c) 2020-2023 Huawei Device Co., Ltd.
+  *
+@@ -291,7 +292,7 @@ static int ReadDeviceEventInRingBuffer(
+         }
+         cursor = client->readCursor;
+         event = client->eventRingBuffer[cursor];
+-    } while (!__sync_bool_compare_and_swap(&(client->readCursor), cursor, (cursor + 1) % EVENT_RINGBUFFER_MAX));
++    } while (cmpxchg(&(client->readCursor), cursor, (cursor + 1) % EVENT_RINGBUFFER_MAX) != cursor);
+ 
+     if (event == NULL) {
+         HDF_LOGE("%{public}s: eventRingBuffer is empty", __func__);
+@@ -300,7 +301,7 @@ static int ReadDeviceEventInRingBuffer(
+ 
+     ret = EventDataProcess(event, bwr, bwrUser);
+     if (ret != HDF_SUCCESS) {
+-        if (!__sync_bool_compare_and_swap(&(client->readCursor), (cursor + 1) % EVENT_RINGBUFFER_MAX, cursor)) {
++        if (cmpxchg(&(client->readCursor), (cursor + 1) % EVENT_RINGBUFFER_MAX, cursor) != (cursor + 1) % EVENT_RINGBUFFER_MAX) {
+             HDF_LOGE("%{public}s: EventDataProcess failed and cursor had been changed, drop the event", __func__);
+             DevEventFree(event);
+         }
+@@ -425,7 +426,7 @@ static void DropOldEventInRingBuffer(struct HdfVNodeAdapterClient *vnodeClient)
+             break;
+         }
+         firstEvent = vnodeClient->eventRingBuffer[cursor];
+-    } while (!__sync_bool_compare_and_swap(&(vnodeClient->readCursor), cursor, (cursor + 1) % EVENT_RINGBUFFER_MAX));
++    } while (cmpxchg(&(vnodeClient->readCursor), cursor, (cursor + 1) % EVENT_RINGBUFFER_MAX) != cursor);
+ 
+     if (firstEvent != NULL) {
+         if (vnodeClient->adapter != NULL) {
+@@ -445,10 +446,10 @@ static void AddEventToRingBuffer(struct HdfVNodeAdapterClient *vnodeClient, stru
+     }
+     do {
+         cursor = vnodeClient->writeCursor;
+-    } while (!__sync_bool_compare_and_swap(&(vnodeClient->writeCursor), cursor, (cursor + 1) % EVENT_RINGBUFFER_MAX));
++    } while (cmpxchg(&(vnodeClient->writeCursor), cursor, (cursor + 1) % EVENT_RINGBUFFER_MAX) != cursor);
+ 
+     vnodeClient->eventRingBuffer[cursor] = event;
+-    __sync_synchronize();
++    smp_mb();
+     vnodeClient->writeHeadEvent = false;
+ }
+ 
+-- 
+2.55.0
+

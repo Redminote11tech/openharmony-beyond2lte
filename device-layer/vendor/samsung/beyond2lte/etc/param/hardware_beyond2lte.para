@@ -1,0 +1,3 @@
+# SPDX-License-Identifier: Apache-2.0
+# Samsung Galaxy S10+ Exynos; revision is not yet detected at runtime.
+const.product.hardwareversion=default

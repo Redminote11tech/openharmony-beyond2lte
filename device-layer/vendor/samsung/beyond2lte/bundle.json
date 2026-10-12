@@ -1,0 +1,35 @@
+{
+  "name": "@ohos/product_beyond2lte",
+  "version": "3.1",
+  "license": "Apache License 2.0",
+  "private": false,
+  "scripts": {},
+  "dirs": [
+    ""
+  ],
+  "component": {
+    "name": "product_beyond2lte",
+    "subsystem": "product_beyond2lte",
+    "syscap": [],
+    "features": [],
+    "deps": {
+      "components": [
+        "init"
+      ],
+      "third_party": []
+    },
+    "build": {
+      "sub_component": [
+        "//vendor/samsung/beyond2lte/hdf_config/uhdf:hdf_config",
+        "//vendor/samsung/beyond2lte/preinstall-config:preinstall-config",
+        "//vendor/oniro/oniro-haps:oniro_custom_haps",
+        "//vendor/oniro/wallpaper:oniro_wallpaper",
+        "//vendor/samsung/beyond2lte/etc:product_etc_conf",
+        "//vendor/samsung/beyond2lte/hals/audio:hdf_audio_config",
+        "//vendor/samsung/beyond2lte/hals/codec:hdf_codec_config",
+        "//vendor/samsung/beyond2lte/resourceschedule:resourceschedule",
+        "//vendor/samsung/beyond2lte/custom_conf:custom_config"
+      ]
+    }
+  }
+}

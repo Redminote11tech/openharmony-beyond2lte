@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+// Samsung Exynos9820 baseline: framework events and automatic Linux bus wrappers.
+// Hardware-specific reference configs remain inactive until Samsung validation.
+#include "device_info/device_info.hcs"
+
+root {
+    module = "samsung,exynos9820";
+}

@@ -1,0 +1,1123 @@
+{
+  "scope": "Source-only public export; per-file and per-hunk notices take precedence",
+  "upstream_board": "https://github.com/eclipse-oniro4openharmony/device_board_oniro/tree/OpenHarmony-6.1-LTS",
+  "upstream_vendor": "https://github.com/eclipse-oniro4openharmony/vendor_oniro/tree/OpenHarmony-6.1-LTS",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "105f3568a3291e8c9ac35e1133235065b5ad32d2cd6ab2624d100ed4eeebbf7a",
+      "bytes": 703
+    },
+    {
+      "path": "CRAVE-RULES.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "f0989670a062c8abd5ce11cae2ab64ddd860c42f470a0d5a5a704515efbd6aa7",
+      "bytes": 1363
+    },
+    {
+      "path": "LICENSES/Apache-2.0.txt",
+      "license": "License text; governs referenced files, not a uniform repository license",
+      "sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6",
+      "bytes": 11558
+    },
+    {
+      "path": "LICENSES/GPL-2.0-kernel.txt",
+      "license": "License text; governs referenced files, not a uniform repository license",
+      "sha256": "af8067302947c01fd9eee72befa54c7e3ef8a48fecde7fd71277f2290b2bf0f7",
+      "bytes": 18693
+    },
+    {
+      "path": "LICENSES/HDF-GPL-2.0-or-BSD-3-Clause.txt",
+      "license": "License text; governs referenced files, not a uniform repository license",
+      "sha256": "fa4eb73ea78906fb992494177b263e12552ede2dc5b2207d89875cad3b58242d",
+      "bytes": 2521
+    },
+    {
+      "path": "README.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "d817d51a951cc29db6fded223090e5978e7a2396e7021fafd7722d92116a569a",
+      "bytes": 5009
+    },
+    {
+      "path": "SOURCE-FILTERS.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "1a92a72bf40311b098ab145336b3f6035c79515280bbd357000c84f212b08860",
+      "bytes": 10637
+    },
+    {
+      "path": "crave-beyond2lte-build.sh",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "69d2380131df1b3064f119b2cbf49adb0b226e43091a790f57f23e3bac2c81e9",
+      "bytes": 4773
+    },
+    {
+      "path": "crave-beyond2lte-pipeline.sh",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "cb20d6275200745e2023002f0d3b11ca34fa452ae0c085249fdbf5ca1812f30a",
+      "bytes": 1489
+    },
+    {
+      "path": "crave-oniro-setup.sh",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "114600b63edcaad1bc8e2f35f0ceefdb784f3cb0a047e65dd1d700e555743153",
+      "bytes": 1988
+    },
+    {
+      "path": "device-layer/BUILD-GRAPH-NOTES.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "30643116065ccd53448c1c31cc295fd31113af42ade83f5196a3b87b840aa1fe",
+      "bytes": 3132
+    },
+    {
+      "path": "device-layer/CRAVE-BUILD-RECIPE.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "f7e55b7e8ddeddd9e97afa4bb4a27c72d9b34519a28a97e475b732b8184d4977",
+      "bytes": 1002
+    },
+    {
+      "path": "device-layer/INTEGRATION.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "74d83fbf21b37194360aa0bc8841ad08671e9904d7c419e27b1d17c471241724",
+      "bytes": 1295
+    },
+    {
+      "path": "device-layer/ORIGIN-AND-TODO.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "5b7704bf9cc63437aad1bf2b6af47cb54f53f886e65e47767817fb87eae6b4c1",
+      "bytes": 1066
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/.gitignore",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "ddffc9ecbdc9dd67af2333dbc880b43b2df2bc598e085e17fca26b5e2b397d80",
+      "bytes": 222
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "1823dc4fe1092b93c46e26699f962025ae51f2319f91062c17b03d718b1af943",
+      "bytes": 1122
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/bundle.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "272ed41bdb5ae78fef2d7be724476157ceada7a516a6dd10e2a20f3e5d98805a",
+      "bytes": 559
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/cfg/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "772d095e6218eee2adade9df5f297709b22f2a5ba5f65bc5ecc20a2c76d29bc5",
+      "bytes": 3391
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/cfg/fstab.beyond2lte",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "cc0abd545baac830b08a3d45592ba236e308045d5c553bf7a0c1083af33be92a",
+      "bytes": 1122
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/cfg/init.beyond2lte.usb.cfg",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "c00fd55705f99472cf45b5d9b06321957725a846eb4c6547566610ba5ec792d6",
+      "bytes": 3224
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/cfg/z_composer_host_gate.cfg",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "6773f009471f2603431f4412f7385da6f8674ff34fc6063bf299a41074af36e8",
+      "bytes": 612
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/cfg/z_device_node_perms.cfg",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "339c4cacad205581e5e38a2bbaa85284df34116c1f6b2ba0967dd5f1068ce802",
+      "bytes": 384
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/cfg/z_hdcd_autostart.cfg",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "8ef400a0512df282c179f36e3ef835fe72aafdd798c444020fc4c1bb782b1829",
+      "bytes": 131
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/cfg/z_multimodalinput_caps.cfg",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "3e4f8ff42873561a9a53c8278aad4af82597ecb2e9521284d146bbafab9a0398",
+      "bytes": 304
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/device.gni",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "434ed4c2f117abcb6632460ea97cc646a3addd58b6437fd768b2ffb104ebf748",
+      "bytes": 1184
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/ansuz/README.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "8f7ca599588e3f4d62acba510ec989b2a15a1c1f8dc01b17196105a3755232bc",
+      "bytes": 9008
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/ansuz/build_init_boot_chainload.sh",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "d08c52f151b09502062f3e733ba1cc3d743cfbf9824371de9279bfd96c5852f1",
+      "bytes": 7625
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/ansuz/build_kernel.sh",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "96063b39ebccfd79ba435949afbf84bef4767e07129c33966defdea5ac6f4d7e",
+      "bytes": 7594
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/ansuz/build_super_img.sh",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "c38113332513e0c0a60f15fca9501dff0c3d9036610429fc2485fe3a96e3c775",
+      "bytes": 6029
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/ansuz/config/openharmony.config",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "5cb03df838cc00f3e76ae4ca19b14e9c120972a501b658fc7a1e22c487bac5ce",
+      "bytes": 4634
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/ansuz/kmi/README.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "26846b931d4c51606bb01f5fcbe005d78646d2996a1b3b5df088245e0cbfc76b",
+      "bytes": 833
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/ansuz/kmi/stock-module-versions.txt",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "c36b08f122e1628df75396ee9cb0fe7e00aaf519c99c1274342164c4cfd71857",
+      "bytes": 168913
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/ansuz/patches/kernel-source/hmdfs.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "10e005ff39fc25180a5701eae18b5ab6a9ac6c7988955476855ccf4ba4f2c34b",
+      "bytes": 869125
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/ansuz/patches/kernel-source/ohos-adaptation.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "cf48fdc9897a874ffbd1bd9aa711c2bae64dc52e1832ef64c2855fb9289222b9",
+      "bytes": 65716
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/ansuz/patches/kernel-source/ohos-dfx-staged.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "6dc17139042a0fed5c299e6ddf59e0820c5071d718c04d6d6d169642bc0e3c2d",
+      "bytes": 141885
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/ansuz/patches/kernel-source/ohos-fs-staged.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "d4db01b9a1258d2be2fdd2372502e45c59ad00a7b916138878a68ad438bad272",
+      "bytes": 161947
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/README.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "02fabda5143f8050e672c009f358e318d6ad11da6972051fd55b1dd632bf9e1f",
+      "bytes": 2136
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/build_boot_img.sh",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "0c2cfc324772b1de691dc6c4d8dead2ef2b21e48b59ce89a0d6d94bfd449e2bf",
+      "bytes": 2977
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/build_kernel.sh",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "4130673e859fb1c2a99e23718c777616a54c6c1c3b2af1549559716425896086",
+      "bytes": 2290
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/config/openharmony.config",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "a7f10b375f7d6766a9277b86f97d6b7a7ea1677421a30ac348b79c293d6347b1",
+      "bytes": 703
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/patches/kernel-source/0001-kbuild-downgrade-GCC16-noisy-Werror-style-classes-to.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "1e797b6fb92ca51544216295d7e4c128eb1d4be4ffd25688a138f0ea4a8fe7df",
+      "bytes": 1912
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/patches/kernel-source/0002-bcmdhd_101_16-drop-driver-local-Werror-for-GCC16-bri.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "dbf6e35bd680902d5f76d23d5019d7622b0dfada4ed79c364744d61cbeb33920",
+      "bytes": 1128
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/patches/kernel-source/0003-dpu20-panels-noinline-dsim_check_cb-for-GCC16-IPA-re.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "39a035549b73ce5064697eb8a5a11a62eb046394c7453941591bfd6a170b7194",
+      "bytes": 1115
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/patches/kernel-source/0004-khdf-integrate-OpenHarmony-HDF-kernel-framework-for-.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "e17ed2460a49bf959971ecd33b2c39bb2e8c5eeafb625985f4cd4a4af5baf338",
+      "bytes": 10709922
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/patches/kernel-source/0005-khdf-vnode-adapter-use-kernel-cmpxchg-smp_mb-for-GCC.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "9ac4c2f33342e391a5518a31f91d3edb9f3f6950de7177c008986f6573e1bc97",
+      "bytes": 3035
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/patches/kernel-source/0006-staging-add-OH-hilog-hievent-kernel-log-drivers-basi.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "d624a91c52202770d37955476eb38f8ffaebed77907c72767bc9423d77e1929a",
+      "bytes": 37252
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/patches/kernel-source/0007-khdf-platform-drivers-accesstokenid-full-OH-kernel-m.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "e041aa3038ea5e082e646af5ca6deccc36fea618aca6f0d2dd84031a17e9d88d",
+      "bytes": 1262754
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/patches/kernel-source/0008-fs-port-HMDFS-SHAREFS-from-Oniro-x23-5.10-to-4.14.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "c1c0c3f4573c2679e0fd86f26b0fbfe176e6558b91fbcc848cc0ec8fa0bee255",
+      "bytes": 933008
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/patches/kernel-source/0009-init-fix-uninitialized-SAR-ramdisk-offset.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "0f1b1fa55456eae548b943777dba8b474c22424ac7272f832a9c1ad3e34fb7f3",
+      "bytes": 824
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/patches/kernel-source/0010-hilog-dynamically-register-and-publish-device.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "1d0b8fde71996e8c330f13210729250456a7f0e924b2ce30d0ab1e83a69c3989",
+      "bytes": 5062
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/patches/kernel-source/0011-gpio-register-controllers-outside-gpiolib-lock.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "f9605a67c343e560fb987695852d27330d39bcae0187ce5875bc03a5df6829ad",
+      "bytes": 7950
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/beyond2lte/patches/kernel-source/README.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "6e7fdb08888c03c9ac67638d7d4319907b4eb05962747eef4b8a881aec066f45",
+      "bytes": 3124
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/mimir/build_kernel.sh",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "a0de9881a930fd5efcb061e1f7454f2c0fcd011c31ab9c6ddfd4d89aa13dbc7e",
+      "bytes": 5122
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/mimir/config/openharmony.config",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "b8c888adbec9ba04b182e11f25c88fd88690db6f5634b7e1747c87175d336531",
+      "bytes": 1522
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/mimir/patches/README.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "c55b14d64d8e228ec576b06f0b3fa6d663636d4cc53e2f0a6f0ddb40b57c5f98",
+      "bytes": 2700
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/mimir/patches/kernel-source/hdf.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "41ef55a692dbce2426500548887e749dccdbf22947e20d6a8719b4fce42d6c08",
+      "bytes": 2862
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/mimir/patches/kernel-source/hdf_patch.sh",
+      "license": "GPL-2.0-only; retain per-file notice",
+      "sha256": "f98f3b706b855bc79a6c8ffa89b04f47912f72713fa6b2a20be290b422249df3",
+      "bytes": 1885
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/mimir/patches/kernel-source/ohos-adaptation.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "29ab6bd52f24896bb8b563bceec5af20512c145dbf2e316d7b1cf2b53eff0056",
+      "bytes": 23566
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/mimir/patches/port-repo/build-tools.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "a37e6dcb2a8418da7d87dc95248feb53880785d5551d5b3962bf249eedd1df74",
+      "bytes": 2089
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/mimir/patches/port-repo/deviceinfo.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "8fc4ade865eff6096490e051babf6905bc395a4831aabb4626cc574896bf9b4b",
+      "bytes": 894
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/kernel/mimir/patches/port-repo/libufdt.patch",
+      "license": "GPL-2.0-only kernel modifications; imported per-hunk GPL-2.0/BSD-3-Clause notices retained",
+      "sha256": "63b4bc7dbfd0e85b6be3a8a43976b7d544401ecc942b981e90942d9e281d9131",
+      "bytes": 1764
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/utils/device/README.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "c93b51c4a1b76888af7ea6714edbfb1f800145a9bcd78ca4c8d6f91a1bce305b",
+      "bytes": 2042
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/utils/device/init-strace-wrap.c",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "dd2c9cef49b8f79f23e752eefea3f92f159901b87900600a062b00700fbea0fa",
+      "bytes": 1760
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/utils/device/reboot-bl.c",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "6fed4df538578b2cdc256348b1821d953f127e248e8563d550b0b25bcee3fdfb",
+      "bytes": 1146
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/utils/host/flash-native.sh",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "f9fe7998f10b8954ef1e2c3e2d06e713f261ddc0c3ec17e4bf8a0fd35f008f31",
+      "bytes": 16424
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/utils/host/lpunpack.py",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "aa17d5c29153f0b3310d19fadf15599c7e22be4d8684174af2560b9be3469089",
+      "bytes": 9779
+    },
+    {
+      "path": "device-layer/device/board/samsung/beyond2lte/utils/host/pull-halium-blobs.sh",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "a3ec216e50341b03b386123c9ce4624255b881e1d15a0eb038d5f7800f18c986",
+      "bytes": 14155
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/bundle.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "8bbdcec0b2c1903349e7953b467bbc84c7a143131305dbdfb0303bbc668b6e92",
+      "bytes": 1014
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/config.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "948f1ad91fc23b1184fc3a54a5dbffa6fe1d2261103889656ce358810a8345f8",
+      "bytes": 11531
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "104e1f1e1559d88d3c341c4ccc3e8227c6ff765f9fa116a41cee3f63ba70291f",
+      "bytes": 811
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/bootanimation/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "1c445b71424990a7c65cea5345471f54822176ea5f1b0d764d8e13d11f331ca8",
+      "bytes": 1192
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/bootanimation/bootanimation_custom_config.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "ee5c0dbd20b9580c4b354e1ed5bb5089f2c40a39b7b294dc447e866a37b0f700",
+      "bytes": 171
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/power_config/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "b12d331863635441103f07f1f35563ab0ef3ec99508d3b8933850c1264530c45",
+      "bytes": 870
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/power_config/power_mode_config.xml",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "502b3dced87a62dc07042c4212eb7b1eaae5769ff8322be8f1c8b378351aa6a3",
+      "bytes": 2519
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/telephony/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "24f607526f658a4f630eb0eded2095aad735183c4b348abef2c92221ee5302f0",
+      "bytes": 2513
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/telephony/README.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "cde33aca9aa0cb6deeb4a837df6bd59f7f3afa26134e5249ac866f4f4d058180",
+      "bytes": 4397
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/telephony/convert_apns.py",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "967e0c6d90d4ed5550386ec1938afb4e503c1236ac016fa4290257ee0cd19398",
+      "bytes": 9227
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/telephony/pdp_profile.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "bfa8ccfc4be0f96cbdcb54c9d01bcca046a831e3329e0e4e163cad02d8600687",
+      "bytes": 1018596
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/window/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "ef41ad032087b4ef8f8e2c49caab840456d5e565491c72a294c70da8e05ce7d8",
+      "bytes": 2488
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/window/devices/ansuz/display_manager_config.xml",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "6ffea78e5cbb0de34725af0b63691002182c244c134ed2a2b4de5d2d15e185b3",
+      "bytes": 3861
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/window/devices/beyond2lte/display_manager_config.xml",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "c331bf9d1219d4ddb9871714426057d133126b523154da6e855443527df1f706",
+      "bytes": 3262
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/window/devices/x23/display_manager_config.xml",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "53792cf8b4a3ef597e745f3f01932db56000cabd844e8ae818831a7799499df3",
+      "bytes": 3728
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/custom_conf/window/window_manager_config.xml",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "9dfd2004c44586dc166448312fed11638807ec5d615166e8f71eaa4b948d9bc6",
+      "bytes": 4935
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "9dbee3aaaaddc75858e298e7da52698af4fed566810567f5354b552779776b4a",
+      "bytes": 1780
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/README.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "64b965d7f20205d3294785855e418340c12a59ea6c28f896fdd6ce0ad2a9e8f4",
+      "bytes": 1204
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/fstab/fstab.ansuz",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "b5009fc63ee579dbb1f301b7b7f54b70b4e0ce73b25240e736ccd6ade105b1ab",
+      "bytes": 2035
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/fstab/fstab.x23",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "db5929e0c8efe4b1251ae4fc86d53d1ff09e5ab1cf03e552d249a2005e5aa31f",
+      "bytes": 3934
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/init/USB-BRINGUP.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "2fa9125c417a1a3331493e55c3630b2d62d24843a2c3797901ac6449e695339e",
+      "bytes": 4530
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/init/beyond2lte_usb.c",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "4ed732448d3e41c654efe5d63870832b7264909a548a11d3b85ed139f8c41066",
+      "bytes": 5769
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/init/init.ansuz.cfg",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "ed8be3de57bfd41b9a4523eb928670fae73cdb943ef72d186babed2173972d18",
+      "bytes": 2698
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/init/init.ansuz.usb.cfg",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "49ed50c335fb9a9a7a6fa79e46afb64735055002aef534f7f0c2d4e3e676a9a7",
+      "bytes": 2554
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/init/init.x23.cfg",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "25fcb865fded2484d3be9dd6abc9eb052306bb8daa65838b4a8faded86b39973",
+      "bytes": 4445
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/init/init.x23.usb.cfg",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "35e4d720866e1a91ab5d2da2d3e280dee490e5d59aab4ddafa028ec7c9977dbd",
+      "bytes": 2253
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/init/tests/usb_lifecycle_test.py",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "e58c5e6d004cf7307017005abdb511d7b68eca4b81ef0406a9fb94fce262c58c",
+      "bytes": 3362
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/param/device/ansuz.para",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "12d44bcd5866193126279e7d5a24ab6c1fe83674c33b627f9383d7bde4751b76",
+      "bytes": 1070
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/param/device/x23.para",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "8910e3faaafc367572f86c7258a5cba3b11448822e25cf175f0cece6edd20280",
+      "bytes": 1060
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/param/device_model.para.import",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "b3c51d67b21b23eb6104f5c69e7ce0834af2baa144476e1603911c2a3f0d2990",
+      "bytes": 1540
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/param/hardware_beyond2lte.para",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "0c4e3f3beb75113c86693e14038d7a69a4c44f3c2fa322b5ae17572963972195",
+      "bytes": 147
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/param/hardware_hybris_generic.para",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "a39f1aa9c2462cc10d1af4355e57b0f0d20bd65aa7da9de37fb271989cf38bfb",
+      "bytes": 628
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/param/hybris_native.para",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "8a6b6f71c46122e07a18b981f80a7e2bf0c13d6d3e4a142e43738fee19421c2e",
+      "bytes": 6580
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/param/product_beyond2lte.para",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "c85eac698f752c6d7a7e875ba61a24fd176095c1fa812995cf2455bea21b78bf",
+      "bytes": 869
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/param/product_hybris_generic.para",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "998cf234d8448e884887a387ca0a126334a498fb4eb30c68301d2ae2a8cf6f22",
+      "bytes": 1597
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/etc/ueventd/ueventd.config",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "96b684e79c8a4a3cef840fed81e04cc9027541f69f390d03591c64938c3cce82",
+      "bytes": 548
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hals/audio/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "23bcc820ad9e797230c996d1e90ce9ef6afb251985d870f3c20204e6a93420b3",
+      "bytes": 2778
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hals/audio/alsa_adapter.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "f445ca0d1443538b04beb2e11b30a40e563214a21173a7a99163384df0686a23",
+      "bytes": 143
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hals/audio/alsa_paths.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "a857360bd8e88df654dc466829e7223574d4c14ecbc2510a68eedf1b85b971cf",
+      "bytes": 4369
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hals/audio/audio_adapter.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "987445d4080c0dc26fb8a6e73ce5e1e034670329c81ce0f4c7ae34e83bdad6aa",
+      "bytes": 1383
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hals/audio/audio_effect.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "d4beaf3f5f694483f64a7fdec6c157790638ac776ab8631811e678aaf89a823a",
+      "bytes": 313
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hals/audio/audio_paths.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "c92f90cb885156816a61d5b56263619d9f19f745fdef962936ba77d1f2ce7869",
+      "bytes": 7082
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hals/audio/config/arm/audio_policy_config.xml",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "943e2c067e9a28e1874859131a5f28030a39ab83274dacd6ff9ffaa9a6047803",
+      "bytes": 6759
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hals/audio/config/arm64/audio_policy_config.xml",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "639a3497766aafd6a654f5b6e16fed0c3190e47ef87f2fdf6944ac262801f37a",
+      "bytes": 9062
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hals/audio/config/audio_policy_config_new.xml",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "e5e27aa768673f63fb201cf5cb0069f0b362e90c0967e13dc246198702ffe2ef",
+      "bytes": 6189
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hals/audio/product.gni",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "e426e10fda453ecb8fe0c5dec3d37d39ee3179dd9fc10c9df6cace51025b0af2",
+      "bytes": 939
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hals/codec/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "d7d1ab5391034fd23b6909a4d4aaa7414fb39a8e9bcb82ca2ad5ae35f4efca2e",
+      "bytes": 1260
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/ACTIVE-CONFIG.md",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "6a298c8984dc34c3d85cb67a46ba9c80cea35a04ac14d555497b502b0b3f1b09",
+      "bytes": 803
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/Makefile",
+      "license": "GPL-2.0-only; retain per-file notice",
+      "sha256": "6df17d7d40b094c9ef55c623983c41ee20349edff39c215155a729553e712749",
+      "bytes": 2155
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/audio/analog_headset_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "6f8ce498c4638692ba0041c6efbb13e657a27df89b709b3ed60c87212970eb80",
+      "bytes": 733
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/audio/audio_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "f46b7c52000d842b691102afa9a5673cacedcb4aa21464021e40e7c56c1d0113",
+      "bytes": 716
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/audio/codec_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "b677320db9d03c709c888c360e5793313d4679105deab29e9fa798fcad2a7261",
+      "bytes": 5685
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/audio/dai_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "cef9b62d3b4a482c82b737a6ddb0d5998db2d4d8e67d66ad5f60fa61a16cff08",
+      "bytes": 1533
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/audio/dma_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "990a926b37efc9b34776bbb4a9dc62c96b5dd996c4dabc7bb3f055e64c7dcdcb",
+      "bytes": 279
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/audio/dsp_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "917ce60d9d2e1ad0e2efa437f98842d21354765f965c58dcbfeb2edcd27aaff2",
+      "bytes": 525
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/device_info/device_info.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "c1276c153b917d0f2764f925b185960e565801d3d30b082f6de3ac8982995bb2",
+      "bytes": 2521
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/hdf.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "fb08c64542124b47e8993aef8939d989a3bfb61e7b306830c6ba07385e1fe23c",
+      "bytes": 287
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/hdf_test/Makefile",
+      "license": "GPL-2.0-only; retain per-file notice",
+      "sha256": "eec7811d9fd241f630dd7f9fb323c2562f8cd0adff4510155a018f88f8c34bde",
+      "bytes": 1963
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/hdf_test/emmc_test_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "7ebc8de423ef14206297f34f93f9bba1a7230eaff0bef2db3019fc7429a6dc09",
+      "bytes": 183
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/hdf_test/gpio_test_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "7a14ae7d57794ea0a8335e8c9cac90670d10895386abf42afd9aad2ca2fbe206",
+      "bytes": 184
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/hdf_test/hdf.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "a1cf9896539bdbd0ef0d99d20bef4e09bb9ff2bf46f18e12e9777cdf8086692a",
+      "bytes": 366
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/hdf_test/hdf_config_test.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "4626a0150ae66f98eeeb8661fe30c58baa38e59dc46c4687c364eec82bd10be5",
+      "bytes": 1577
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/hdf_test/hdf_test_manager/device_info.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "107835235d9134fbe43a3a74b2153f282e6e152adc1c19e21ebfb53dbb13298e",
+      "bytes": 4980
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/hdf_test/i2c_test_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "0f233cff82ded564fb14c1f2db3f8094c465b47f3c023063f7affa0c4cad28cf",
+      "bytes": 266
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/hdf_test/pwm_test_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "ec4735fa7e9df78a4af8eaab03a19fff88eae7ce71b9e11112196809bebd1b59",
+      "bytes": 193
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/hdf_test/sdio_test_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "a7debdc81a4cdc6f6bfd30452af156c1b8c0570892101d94fbd2133f421bec7e",
+      "bytes": 246
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/hdf_test/spi_test_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "05f4ae3d560f74f02eda6a04868e918101ffc7a2dac280d5515465907f09df18",
+      "bytes": 207
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/hdf_test/uart_test_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "54eb891ee08ddfc7270957f847f47c50dc068f0dd93aa3c29c697905f10af0d8",
+      "bytes": 202
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/input/input_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "495b88a33d893535fe002977198c4696b5e615a6a7c6891ae9067caf6f284dce",
+      "bytes": 7000
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/light/light_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "7d358a92b5647a585ad11541d827b4971d1d25d3f7a7c7a314e36d3bb9695e51",
+      "bytes": 1319
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/platform/a311d_spi_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "04c8d1e5565cea23b21d5149a33314de795233e9858c3c237377023561f63711",
+      "bytes": 589
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/platform/a311d_uart_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "aa9b636c4ccff214387bb12326343a4c8d110928812a48bc31738a990872e93d",
+      "bytes": 523
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/platform/a311d_watchdog_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "e4043081c9a4ecc032e45869475cb1009f887e82422f740f568f36c65ff6103d",
+      "bytes": 379
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/platform/adc_config_linux.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "0ddf407276517f878fe69a0a686a41886d3b6758cc5a884406678f1ad7fd3c84",
+      "bytes": 979
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/platform/emmc_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "9212aa8a835d567aead7e948c2c32095feb40a6274a68b265ba34a2bcb28db6c",
+      "bytes": 323
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/platform/i2c_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "4b338a996c7f0eeba1a6314e323c76ca9bdd27008893a102dd1a1fcdf8aabad3",
+      "bytes": 561
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/platform/pwm_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "2d11abd9c641efce1bb15c1b947e1e32a7bf84a8b0f37892da5f9a52fcbcd86b",
+      "bytes": 486
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/platform/sdio_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "32d4cf0f9cd98e5dec94eca9831fe2c57a1ab9e0d0ac03be034c2716322e9a8b",
+      "bytes": 329
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/sensor/accel/bmi160_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "b4e7ec72c8cf5d343010326c69c0cdeb437c15d80b88d954eb4cd5919ad03cff",
+      "bytes": 2110
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/sensor/accel/mxc6655xa_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "fd112d9d4aa6264184c349aa44d5e34444c2e4c89646a765fc9c964b748bbaa1",
+      "bytes": 2747
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/sensor/humidity/humidity_aht20_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "4f1fd0bd6930436090c32864744e608fc44c8de5a053d1f0a2758459ae1fca45",
+      "bytes": 1752
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/sensor/humidity/humidity_sht30_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "5d46327eea74e348e727495be689f229c3acbffec1caa0065128cdb3d47b4020",
+      "bytes": 1755
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/sensor/sensor_common.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "d833e7f9dbd0d0e8b6ccecff7cca280cd7ead7789ee5b4c11861ed90673ebb62",
+      "bytes": 861
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/sensor/sensor_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "45650a92e7cb73bc931a3da107580a00ec67cc6fc27734df4034a41fc234ba78",
+      "bytes": 175
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/sensor/temperature/temperature_aht20_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "901e2fd07c6fbed8228cff6f7d27d1fe82402c3a282674fcd1d466b677942136",
+      "bytes": 1759
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/sensor/temperature/temperature_sht30_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "aa2cbc9550a84576f95bd00fa03952c3bbc430c915f95c1cda7f86a301f81c89",
+      "bytes": 1762
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/vibrator/linear_vibrator_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "63649ead42abe44cbbc3c568c17aab86d162aa950d0b30b7ed61371238f49922",
+      "bytes": 341
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/vibrator/vibrator_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "27e7cb6f5234e184ebb5579ef0f5a4933a442d6947065a57150c6dd20d8906ee",
+      "bytes": 735
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/wifi/wlan_chip_rtl8822cs.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "04798b84adb7f48fc9ebc088a29d7b2d26fa5a15b5c27e738d18541310b39835",
+      "bytes": 340
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/khdf/wifi/wlan_platform.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "bf118cc2baf5aa9fceb53f3cfae322a4f4682de83733980287e4e6b26f5fbaf4",
+      "bytes": 3781
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "05cb8028e905c82ff0548d19b02a5b8ef067bc0f0cec36a7ccb5f50a703be4b2",
+      "bytes": 993
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/camera/hdi_impl/camera_host_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "08eca72fab387a8fc61c810aa1fc1b9a8429aa01730162d0b182c785d63af41a",
+      "bytes": 10581
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/camera/pipeline_core/config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "e331c0bc9b0ed643f91e6c654156d320098351dbb03e4a73407c41137e5316b1",
+      "bytes": 54448
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/camera/pipeline_core/ipp_algo_config.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "8870fa9eb5d29517afa3d1db82f46783ab811f7db2c03090c0f12ce50ec43af3",
+      "bytes": 258
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/camera/pipeline_core/params.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "7967e439e2c7fa5889dda8abf5c3f073ce3d943db457361bab05ae5aa1ce43c1",
+      "bytes": 680
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/device_info.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "ce5a62e68d206545c293c5844600335b8fc8c1e907ce2d2f4ff4a9c1f7a74e5c",
+      "bytes": 23188
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/hdf.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "fbc544e34765963f31eb80afbf47246a328efe7b48d34f352edacf2e3ab1a201",
+      "bytes": 66
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/media_codec/codec_adapter_capabilities.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "4f9a587210648e69b6cb6a3fee1d395cf6575acc041a79a6bffcac1e5e7aa1c2",
+      "bytes": 15069
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/media_codec/codec_component_capabilities.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "0026f214c51e3c02251ead992a9d9a79a55ec9f7036c85c31507e8decb85a405",
+      "bytes": 13852
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/media_codec/codec_hdi1.0_capabilities.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "f893297c64a00bd95a52021fafe886b796deed7312f9110fdc778871551bd7cf",
+      "bytes": 9831
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/media_codec/image_codec_capabilities.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "f545447760c1314ecaf02f20e6be99a9583efb5b4ef11c67409bfef61b9290b8",
+      "bytes": 1073
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/media_codec/media_codec_capabilities.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "55d45200e85901bb007e8b0129519806936faa27cc811d4b7252c9ed84032a5f",
+      "bytes": 13801
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/usb_ecm_acm.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "3d1886a043f6a77799b521db4b64559c7654275d1c4c804cceb2fb922fc7eb52",
+      "bytes": 28438
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/hdf_config/uhdf/usb_pnp_device.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "05e6e6f4fc81396c980743f378ca79cc30af7c001dd3c7207bff486dc95bf8bf",
+      "bytes": 2442
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/preinstall-config/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "01fd129139b1cd0309c5bec39f4648f27cef1a82df241a3a35c3521ab63766f5",
+      "bytes": 2538
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/preinstall-config/install_list.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "dfbd37967594e02ae20117e19b64a01146218ecb14fb3f5e2796cb77cba1bcf4",
+      "bytes": 7736
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/preinstall-config/install_list_capability.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "7e32a579bd8b62e7b4c7ba0c31c24e5e2205a845b4ae3bd4e1d944d22fd00ec9",
+      "bytes": 21600
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/preinstall-config/install_list_permissions.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "e0225061425321584dc8c0ccf3528fff2529a4ffb1dcf915c996e4ffb3976848",
+      "bytes": 12634
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/preinstall-config/uninstall_list.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "fda4373dfae8117098f7192ddf0a85803f7e099eeb27fc3f302620d0ba73981c",
+      "bytes": 54
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/product.gni",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "38ccab0b5163cdf2ceeae0a8bfb8c53b8f3ece00c4368fdb3edb801ef9fc3fe0",
+      "bytes": 720
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/resourceschedule/BUILD.gn",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "414abfcc554dbca2660865c0fb6a246ef02332c511a56602c6312dec66ba8b1d",
+      "bytes": 2087
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/resourceschedule/cgroup_sched/cgroup_action_config.json",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "83fcde08db2f48ad0c3ebc101bbf349e75f016abf1f695ecbc6e2ac42ab6baef",
+      "bytes": 605
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/resourceschedule/ressched/res_sched_config.xml",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "9f278dc4755149c43a9e92c048564c40426d091a5513cf70f0adff374420e116",
+      "bytes": 688
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/resourceschedule/ressched/res_sched_plugin_switch.xml",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "150b0756ef111d9c6aa5ab4f11c8e4ba0afadfb02c4c7835d16162df8d51b70b",
+      "bytes": 989
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/resourceschedule/soc_perf/socperf_boost_config.xml",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "6d4354fdc024701fbd83f4de90998e23aa9bcf68d896479e7fe20d46918930ea",
+      "bytes": 2715
+    },
+    {
+      "path": "device-layer/vendor/samsung/beyond2lte/resourceschedule/soc_perf/socperf_resource_config.xml",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "28ab7d2799f111f0bac9df909d4a02b432989380e1983aef39a2c267393d5192",
+      "bytes": 1808
+    },
+    {
+      "path": "kernel-config/beyond2lte/khdf/device_info/device_info.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "c1276c153b917d0f2764f925b185960e565801d3d30b082f6de3ac8982995bb2",
+      "bytes": 2521
+    },
+    {
+      "path": "kernel-config/beyond2lte/khdf/hdf.hcs",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "fb08c64542124b47e8993aef8939d989a3bfb61e7b306830c6ba07385e1fe23c",
+      "bytes": 287
+    },
+    {
+      "path": "tools/integrate_device_layer.py",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "d59f416a4a94afc9da18ef82f503e191f2880fecb1ded4137392c1b5a1832450",
+      "bytes": 4518
+    }
+  ]
+}

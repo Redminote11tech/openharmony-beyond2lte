@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Development bring-up product. Model is fixed; no Volla runtime imports.
+const.product.brand=Samsung
+const.build.product=beyond2lte
+const.product.model=SM-G975F
+const.product.name="Galaxy S10+"
+const.product.manufacturer=Samsung
+const.security.developermode.state=true
+# hdcd startup alone does not configure a USB gadget. Leave USB disabled
+# until the Samsung USB helper confirms configfs/FunctionFS setup at boot.
+persist.hdc.mode.usb=disable
+persist.hdc.mode.tcp=enable
+persist.hdc.port=8712
+const.global.language=en-Latn-GB
+const.global.locale=en-Latn-GB
+const.global.region=GB
+# Phone form factor, independent of unverified Volla graphics workarounds.
+const.window.multiWindowUIType=HandsetSmartWindow
+const.abilityms.enable_uiservice=false
+const.product.preview.enable_uiservice=false
+const.product.preview.device_config=2

@@ -1,0 +1,1518 @@
+From 81a5896bba3bedee78fd33a74ff168b9c3a6e980 Mon Sep 17 00:00:00 2001
+From: redminote11tech <redminote11tech@users.noreply.github.com>
+Date: Wed, 23 Sep 2026 17:08:53 +0100
+Subject: [PATCH 6/8] staging: add OH hilog/hievent kernel log drivers (basic
+ kernel-mode code)
+
+---
+ drivers/staging/Kconfig                  |   3 +
+ drivers/staging/Makefile                 |   2 +
+ drivers/staging/hievent/Kconfig          |   4 +
+ drivers/staging/hievent/Makefile         |   3 +
+ drivers/staging/hievent/hievent_driver.c | 419 +++++++++++++++++++
+ drivers/staging/hievent/hievent_driver.h |  32 ++
+ drivers/staging/hievent/hiview_hievent.c | 498 +++++++++++++++++++++++
+ drivers/staging/hievent/hiview_hievent.h |  44 ++
+ drivers/staging/hilog/Kconfig            |  23 ++
+ drivers/staging/hilog/Makefile           |   5 +
+ drivers/staging/hilog/hilog.c            | 382 +++++++++++++++++
+ 11 files changed, 1415 insertions(+)
+ create mode 100644 drivers/staging/hievent/Kconfig
+ create mode 100644 drivers/staging/hievent/Makefile
+ create mode 100644 drivers/staging/hievent/hievent_driver.c
+ create mode 100644 drivers/staging/hievent/hievent_driver.h
+ create mode 100644 drivers/staging/hievent/hiview_hievent.c
+ create mode 100644 drivers/staging/hievent/hiview_hievent.h
+ create mode 100644 drivers/staging/hilog/Kconfig
+ create mode 100644 drivers/staging/hilog/Makefile
+ create mode 100644 drivers/staging/hilog/hilog.c
+
+diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
+index 3325e65d9..e0c796557 100644
+--- a/drivers/staging/Kconfig
++++ b/drivers/staging/Kconfig
+@@ -121,3 +121,6 @@ source "drivers/staging/pi433/Kconfig"
+ source "drivers/staging/sti/Kconfig"
+ 
+ endif # STAGING
++
++source "drivers/staging/hilog/Kconfig"
++source "drivers/staging/hievent/Kconfig"
+diff --git a/drivers/staging/Makefile b/drivers/staging/Makefile
+index bcb0f9f78..8e13106b1 100644
+--- a/drivers/staging/Makefile
++++ b/drivers/staging/Makefile
+@@ -51,3 +51,5 @@ obj-$(CONFIG_CRYPTO_DEV_CCREE)	+= ccree/
+ obj-$(CONFIG_DRM_VBOXVIDEO)	+= vboxvideo/
+ obj-$(CONFIG_PI433)		+= pi433/
+ obj-$(CONFIG_SEC_STI)		+= sti/
++obj-$(CONFIG_HILOG)		+= hilog/
++obj-$(CONFIG_HIEVENT)		+= hievent/
+diff --git a/drivers/staging/hievent/Kconfig b/drivers/staging/hievent/Kconfig
+new file mode 100644
+index 000000000..39da4c041
+--- /dev/null
++++ b/drivers/staging/hievent/Kconfig
+@@ -0,0 +1,4 @@
++config HIEVENT
++    tristate "Enable hievent"
++    help
++	hievent buffer manager
+diff --git a/drivers/staging/hievent/Makefile b/drivers/staging/hievent/Makefile
+new file mode 100644
+index 000000000..530802d59
+--- /dev/null
++++ b/drivers/staging/hievent/Makefile
+@@ -0,0 +1,3 @@
++
++obj-$(CONFIG_HIEVENT)		+= hievent_driver.o
++obj-$(CONFIG_HIEVENT)		+= hiview_hievent.o
+\ No newline at end of file
+diff --git a/drivers/staging/hievent/hievent_driver.c b/drivers/staging/hievent/hievent_driver.c
+new file mode 100644
+index 000000000..28fddcf15
+--- /dev/null
++++ b/drivers/staging/hievent/hievent_driver.c
+@@ -0,0 +1,419 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2021 Huawei Technologies Co., Ltd. All rights reserved.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#include "hievent_driver.h"
++
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/uaccess.h>
++#include <linux/fs.h>
++#include <linux/slab.h>
++#include <linux/cdev.h>
++#include <linux/sched.h>
++#include <linux/time.h>
++#include <linux/timex.h>
++#include <linux/rtc.h>
++#include <linux/uio.h>
++#include <linux/list.h>
++#include <linux/wait.h>
++
++#ifndef HIEVENTDEV_MAJOR
++#define HIEVENTDEV_MAJOR 241
++#endif
++
++#ifndef HIEVENT_NR_DEVS
++#define HIEVENT_NR_DEVS 2
++#endif
++
++static int hievent_major = HIEVENTDEV_MAJOR;
++
++static struct cdev hievent_cdev;
++
++#define HIEVENT_BUFFER ((size_t)1024)
++#define HIEVENT_DRIVER "/dev/hwlog_exception"
++
++struct hievent_entry {
++	unsigned short len;
++	unsigned short header_size;
++	int pid;
++	int tid;
++	int sec;
++	int nsec;
++	char msg[0];
++};
++
++struct hievent_char_device {
++	int flag;
++	struct mutex mtx; /* lock to protect read/write buffer */
++	unsigned char *buffer;
++	wait_queue_head_t wq;
++	size_t write_offset;
++	size_t head_offset;
++	size_t size;
++	size_t count;
++} hievent_dev;
++
++static inline unsigned char *hievent_buffer_head(void)
++{
++	if (hievent_dev.head_offset > HIEVENT_BUFFER)
++		hievent_dev.head_offset =
++			hievent_dev.head_offset % HIEVENT_BUFFER;
++
++	return hievent_dev.buffer + hievent_dev.head_offset;
++}
++
++static void hievent_buffer_inc(size_t sz)
++{
++	if (hievent_dev.size + sz <= HIEVENT_BUFFER) {
++		hievent_dev.size += sz;
++		hievent_dev.write_offset += sz;
++		hievent_dev.write_offset %= HIEVENT_BUFFER;
++		hievent_dev.count++;
++	}
++}
++
++static void hievent_buffer_dec(size_t sz)
++{
++	if (hievent_dev.size >= sz) {
++		hievent_dev.size -= sz;
++		hievent_dev.head_offset += sz;
++		hievent_dev.head_offset %= HIEVENT_BUFFER;
++		hievent_dev.count--;
++	}
++}
++
++static int hievent_read_ring_buffer(unsigned char __user *buffer,
++				    size_t buf_len)
++{
++	size_t retval;
++	size_t buf_left = HIEVENT_BUFFER - hievent_dev.head_offset;
++
++	if (buf_left > buf_len) {
++		retval = copy_to_user(buffer, hievent_buffer_head(), buf_len);
++	} else {
++		size_t mem_len = (buf_len > buf_left) ? buf_left : buf_len;
++
++		retval = copy_to_user(buffer, hievent_buffer_head(), mem_len);
++		if (retval < 0)
++			return retval;
++
++		retval = copy_to_user(buffer + buf_left, hievent_dev.buffer,
++				      buf_len - buf_left);
++	}
++	return retval;
++}
++
++static int hievent_read_ring_head_buffer(unsigned char * const buffer,
++					 size_t buf_len)
++{
++	size_t buf_left = HIEVENT_BUFFER - hievent_dev.head_offset;
++
++	if (buf_left > buf_len) {
++		memcpy(buffer, hievent_buffer_head(), buf_len);
++	} else {
++		size_t mem_len = (buf_len > buf_left) ? buf_left : buf_len;
++
++		memcpy(buffer, hievent_buffer_head(), mem_len);
++		memcpy(buffer + buf_left, hievent_dev.buffer,
++		       buf_len - buf_left);
++	}
++	return 0;
++}
++
++static ssize_t hievent_read(struct file *file, char __user *user_buf,
++			    size_t count, loff_t *ppos)
++{
++	size_t retval;
++	struct hievent_entry header;
++
++	(void)file;
++
++	if (wait_event_interruptible(hievent_dev.wq, (hievent_dev.size > 0)))
++		return -EINVAL;
++
++	(void)mutex_lock(&hievent_dev.mtx);
++
++	retval = hievent_read_ring_head_buffer((unsigned char *)&header,
++					       sizeof(header));
++	if (retval < 0) {
++		retval = -EINVAL;
++		goto out;
++	}
++
++	if (count < header.len + sizeof(header)) {
++		retval = -ENOMEM;
++		goto out;
++	}
++
++	hievent_buffer_dec(sizeof(header));
++	retval = copy_to_user((unsigned char *)user_buf,
++			      (unsigned char *)&header,
++			      min(count, sizeof(header)));
++	if (retval < 0) {
++		retval = -EINVAL;
++		goto out;
++	}
++
++	retval = hievent_read_ring_buffer((unsigned char *)(user_buf +
++					  sizeof(header)), header.len);
++	if (retval < 0) {
++		retval = -EINVAL;
++		goto out;
++	}
++
++	hievent_buffer_dec(header.len);
++
++	retval = header.len + sizeof(header);
++out:
++	if (retval == -ENOMEM) {
++		// clean ring buffer
++		hievent_dev.write_offset = 0;
++		hievent_dev.head_offset = 0;
++		hievent_dev.size = 0;
++		hievent_dev.count = 0;
++	}
++	(void)mutex_unlock(&hievent_dev.mtx);
++
++	return retval;
++}
++
++static int hievent_write_ring_head_buffer(const unsigned char *buffer,
++					  size_t buf_len)
++{
++	size_t buf_left = HIEVENT_BUFFER - hievent_dev.write_offset;
++
++	if (buf_len > buf_left) {
++		memcpy(hievent_dev.buffer + hievent_dev.write_offset,
++		       buffer, buf_left);
++		memcpy(hievent_dev.buffer, buffer + buf_left,
++		       min(HIEVENT_BUFFER, buf_len - buf_left));
++	} else {
++		memcpy(hievent_dev.buffer + hievent_dev.write_offset,
++		       buffer, min(buf_left, buf_len));
++	}
++
++	return 0;
++}
++
++static void hievent_head_init(struct hievent_entry * const header, size_t len)
++{
++#define NANOSEC_PER_MIRCOSEC 1000
++	struct timeval now = { 0 };
++
++	do_gettimeofday(&now);
++
++	header->len = (unsigned short)len;
++	header->pid = current->pid;
++	header->tid = 0;
++	header->sec = now.tv_sec;
++	header->nsec = now.tv_usec * NANOSEC_PER_MIRCOSEC;
++	header->header_size = sizeof(struct hievent_entry);
++}
++
++static void hievent_cover_old_log(size_t buf_len)
++{
++	int retval;
++	struct hievent_entry header;
++	size_t total_size = buf_len + sizeof(struct hievent_entry);
++
++	while (total_size + hievent_dev.size > HIEVENT_BUFFER) {
++		retval = hievent_read_ring_head_buffer((unsigned char *)&header,
++						       sizeof(header));
++		if (retval < 0)
++			break;
++
++		/* let count decrease twice */
++		hievent_buffer_dec(sizeof(header));
++		hievent_buffer_dec(header.len);
++	}
++}
++
++int hievent_write_internal(const char *buffer, size_t buf_len)
++{
++	struct hievent_entry header;
++	int retval;
++
++	if (buf_len < sizeof(int) ||
++	    buf_len > HIEVENT_BUFFER - sizeof(struct hievent_entry))
++		return -EINVAL;
++
++	(void)mutex_lock(&hievent_dev.mtx);
++
++	hievent_cover_old_log(buf_len);
++
++	hievent_head_init(&header, buf_len);
++
++	retval = hievent_write_ring_head_buffer((unsigned char *)&header,
++						sizeof(header));
++	if (retval) {
++		retval = -EINVAL;
++		goto out;
++	}
++	hievent_buffer_inc(sizeof(header));
++
++	retval = hievent_write_ring_head_buffer((unsigned char *)(buffer),
++						header.len);
++	if (retval) {
++		retval = -EINVAL;
++		goto out;
++	}
++
++	hievent_buffer_inc(header.len);
++
++	retval = header.len;
++
++out:
++	(void)mutex_unlock(&hievent_dev.mtx);
++	if (retval > 0)
++		wake_up_interruptible(&hievent_dev.wq);
++
++	return retval;
++}
++
++static unsigned int hievent_poll(struct file *filep,
++				 struct poll_table_struct *fds)
++{
++	(void)filep;
++	(void)fds;
++
++	wait_event_interruptible(hievent_dev.wq, (hievent_dev.size > 0));
++
++	return (POLLOUT | POLLWRNORM);
++}
++
++static ssize_t hievent_write_iter(struct kiocb *iocb, struct iov_iter *from)
++{
++	int check_code = 0;
++	unsigned char *temp_buffer = NULL;
++	const struct iovec *iov = from->iov;
++	int retval;
++	int buf_len;
++
++	(void)iocb;
++	if (from->nr_segs != 3) { /* must contain 3 segments */
++		retval = -EINVAL;
++		goto out;
++	}
++
++	retval = copy_from_user(&check_code, iov[0].iov_base,
++				sizeof(check_code));
++	if (retval || check_code != CHECK_CODE) {
++		retval = -EINVAL;
++		goto out;
++	}
++
++	/* seg 1 && 2 is head info */
++	buf_len = iov[1].iov_len + iov[2].iov_len;
++	if (buf_len > HIEVENT_BUFFER - sizeof(struct hievent_entry)) {
++		retval = -ENOMEM;
++		goto out;
++	}
++
++	temp_buffer = kmalloc(buf_len, GFP_KERNEL);
++	if (!temp_buffer) {
++		retval = -ENOMEM;
++		goto out;
++	}
++
++	retval = copy_from_user(temp_buffer, iov[1].iov_base, iov[1].iov_len);
++	if (retval) {
++		retval = -EIO;
++		goto free_mem;
++	}
++
++	/* 1 2 head info */
++	retval = copy_from_user(temp_buffer + iov[1].iov_len, iov[2].iov_base,
++				iov[2].iov_len);
++	if (retval) {
++		retval = -EIO;
++		goto free_mem;
++	}
++
++	retval = hievent_write_internal(temp_buffer, buf_len);
++	if (retval) {
++		retval = -EIO;
++		goto free_mem;
++	}
++
++	retval = buf_len + iov[0].iov_len;
++
++free_mem:
++	kfree(temp_buffer);
++
++out:
++	return retval;
++}
++
++static const struct file_operations hievent_fops = {
++	.read = hievent_read,   /* read */
++	.poll = hievent_poll,   /* poll */
++	.write_iter = hievent_write_iter, /* write_iter */
++};
++
++static void hievent_device_init(void)
++{
++	hievent_dev.buffer = kmalloc(HIEVENT_BUFFER, GFP_KERNEL);
++	if (!hievent_dev.buffer)
++		return;
++
++	init_waitqueue_head(&hievent_dev.wq);
++	mutex_init(&hievent_dev.mtx);
++	hievent_dev.write_offset = 0;
++	hievent_dev.head_offset = 0;
++	hievent_dev.size = 0;
++	hievent_dev.count = 0;
++}
++
++static int __init hieventdev_init(void)
++{
++	int result;
++	dev_t devno = MKDEV(hievent_major, 0);
++
++	result = register_chrdev_region(devno, 2, "hwlog_exception");
++	if (result < 0)
++		return result;
++
++	cdev_init(&hievent_cdev, &hievent_fops);
++	hievent_cdev.owner = THIS_MODULE;
++	hievent_cdev.ops = &hievent_fops;
++
++	cdev_add(&hievent_cdev, MKDEV(hievent_major, 0), HIEVENT_NR_DEVS);
++
++	hievent_device_init();
++	return 0;
++}
++
++static void __exit hievent_exit_module(void)
++{
++	cdev_del(&hievent_cdev);
++	unregister_chrdev_region(MKDEV(hievent_major, 0), HIEVENT_NR_DEVS);
++}
++
++static int __init hievent_init_module(void)
++{
++	int state;
++
++	state = hieventdev_init();
++	return 0;
++}
++
++module_init(hievent_init_module);
++module_exit(hievent_exit_module);
++
++MODULE_AUTHOR("OHOS");
++MODULE_DESCRIPTION("User mode hievent device interface");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("hievent");
+diff --git a/drivers/staging/hievent/hievent_driver.h b/drivers/staging/hievent/hievent_driver.h
+new file mode 100644
+index 000000000..56eb0c5ea
+--- /dev/null
++++ b/drivers/staging/hievent/hievent_driver.h
+@@ -0,0 +1,32 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2021 Huawei Technologies Co., Ltd. All rights reserved.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#ifndef HIEVENT_DRIVER_H
++#define HIEVENT_DRIVER_H
++
++#include <linux/types.h>
++
++#define CHECK_CODE 0x7BCDABCD
++
++struct idap_header {
++	char level;
++	char category;
++	char log_type;
++	char sn;
++};
++
++int hievent_write_internal(const char *buffer, size_t buf_len);
++
++#endif /* HIEVENT_DRIVER_H */
+diff --git a/drivers/staging/hievent/hiview_hievent.c b/drivers/staging/hievent/hiview_hievent.c
+new file mode 100644
+index 000000000..552965dfa
+--- /dev/null
++++ b/drivers/staging/hievent/hiview_hievent.c
+@@ -0,0 +1,498 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2021 Huawei Technologies Co., Ltd. All rights reserved.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#include "hiview_hievent.h"
++#include "hievent_driver.h"
++
++#include <linux/slab.h>
++#include <linux/string.h>
++
++#define INT_TYPE_MAX_LEN    21
++
++#define MAX_PATH_LEN        256
++#define MAX_STR_LEN         (10 * 1024)
++
++/* 64K is max length of /dev/hwlog_exception */
++#define EVENT_INFO_BUF_LEN         (64 * 1024)
++#define EVENT_INFO_PACK_BUF_LEN    (2 * 1024)
++
++#define BUF_POINTER_FORWARD                     \
++do {                                    \
++	if (tmplen < len) {                 \
++		tmp += tmplen;                  \
++		len -= tmplen;                  \
++	} else {                            \
++		tmp += len;                     \
++		len = 0;                        \
++	}                                   \
++} while (0)
++
++struct hievent_payload {
++	char *key;
++	char *value;
++	struct hievent_payload *next;
++};
++
++static int hievent_convert_string(struct hiview_hievent *event, char **pbuf);
++
++static struct hievent_payload *hievent_payload_create(void);
++
++static void hievent_payload_destroy(struct hievent_payload *p);
++
++static struct hievent_payload *hievent_get_payload(struct hievent_payload *head,
++						   const char *key);
++
++static void hievent_add_payload(struct hiview_hievent *obj,
++				struct hievent_payload *payload);
++
++static struct hievent_payload *hievent_payload_create(void)
++{
++	struct hievent_payload *payload = NULL;
++
++	payload = kmalloc(sizeof(*payload), GFP_KERNEL);
++	if (!payload)
++		return NULL;
++
++	payload->key = NULL;
++	payload->value = NULL;
++	payload->next = NULL;
++
++	return payload;
++}
++
++static void hievent_payload_destroy(struct hievent_payload *p)
++{
++	if (!p)
++		return;
++
++	kfree(p->value);
++	kfree(p->key);
++	kfree(p);
++}
++
++static struct hievent_payload *hievent_get_payload(struct hievent_payload *head,
++						   const char *key)
++{
++	struct hievent_payload *p = head;
++
++	while (p) {
++		if (key && p->key) {
++			if (strcmp(p->key, key) == 0)
++				return p;
++		}
++		p = p->next;
++	}
++
++	return NULL;
++}
++
++static void hievent_add_payload(struct hiview_hievent *obj,
++				struct hievent_payload *payload)
++{
++	if (!obj->head) {
++		obj->head = payload;
++	} else {
++		struct hievent_payload *p = obj->head;
++
++		while (p->next)
++			p = p->next;
++		p->next = payload;
++	}
++}
++
++struct hiview_hievent *hievent_create(unsigned int eventid)
++{
++	struct hiview_hievent *event = NULL;
++
++	/* combined event obj struct */
++	event = kmalloc(sizeof(*event), GFP_KERNEL);
++	if (!event)
++		return NULL;
++
++	memset(event, 0, sizeof(*event));
++	event->eventid = eventid;
++	pr_debug("%s : %u\n", __func__, eventid);
++
++	return (void *)event;
++}
++
++int hievent_put_integer(struct hiview_hievent *event,
++			const char *key, long value)
++{
++	int ret;
++	struct hievent_payload *payload = NULL;
++
++	if ((!event) || (!key)) {
++		pr_err("Bad input event or key for %s", __func__);
++		return -EINVAL;
++	}
++
++	payload = hievent_get_payload(event->head, key);
++	if (!payload) {
++		payload = hievent_payload_create();
++		if (!payload)
++			return -ENOMEM;
++		payload->key = kstrdup(key, GFP_KERNEL);
++		hievent_add_payload(event, payload);
++	}
++
++	kfree(payload->value);
++
++	payload->value = kmalloc(INT_TYPE_MAX_LEN, GFP_KERNEL);
++	if (!payload->value)
++		return -ENOMEM;
++
++	(void)memset(payload->value, 0, INT_TYPE_MAX_LEN);
++	ret = snprintf(payload->value, INT_TYPE_MAX_LEN, "%d", (int)value);
++	if (ret < 0)
++		return -ENOMEM;
++
++	return 0;
++}
++
++int hievent_put_string(struct hiview_hievent *event,
++		       const char *key, const char *value)
++{
++	struct hievent_payload *payload = NULL;
++	int len;
++
++	if ((!event) || (!key) || (!value)) {
++		pr_err("Bad key for %s", __func__);
++		return -EINVAL;
++	}
++
++	payload = hievent_get_payload(event->head, key);
++	if (!payload) {
++		payload = hievent_payload_create();
++		if (!payload)
++			return -ENOMEM;
++
++		payload->key = kstrdup(key, GFP_KERNEL);
++		hievent_add_payload(event, payload);
++	}
++
++	kfree(payload->value);
++
++	len = strlen(value);
++	/* prevent length larger than MAX_STR_LEN */
++	if (len > MAX_STR_LEN)
++		len = MAX_STR_LEN;
++
++	payload->value = kmalloc(len + 1, GFP_KERNEL);
++	if (!payload->value)
++		return -ENOMEM;
++
++	(void)memset(payload->value, 0, len + 1);
++	if (strncpy(payload->value, value, len) > 0)
++		payload->value[len] = '\0';
++
++	return 0;
++}
++
++int hievent_set_time(struct hiview_hievent *event, long long seconds)
++{
++	if ((!event) || (seconds == 0)) {
++		pr_err("Bad input for %s", __func__);
++		return -EINVAL;
++	}
++	event->time = seconds;
++	return 0;
++}
++
++static int append_array_item(char **pool, int pool_len, const char *path)
++{
++	int i;
++
++	if ((!path) || (path[0] == 0)) {
++		pr_err("Bad path %s", __func__);
++		return -EINVAL;
++	}
++
++	if (strlen(path) > MAX_PATH_LEN) {
++		pr_err("file path over max: %d", MAX_PATH_LEN);
++		return -EINVAL;
++	}
++
++	for (i = 0; i < pool_len; i++) {
++		if (pool[i] != 0)
++			continue;
++
++		pool[i] = kstrdup(path, GFP_KERNEL);
++		if (!pool[i])
++			return -ENOMEM;
++
++		break;
++	}
++
++	if (i == MAX_PATH_NUMBER) {
++		pr_err("Too many paths");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++int hievent_add_filepath(struct hiview_hievent *event, const char *path)
++{
++	if (!event) {
++		pr_err("Bad path %s", __func__);
++		return -EINVAL;
++	}
++	return append_array_item(event->file_path, MAX_PATH_NUMBER, path);
++}
++
++/* make string ":" to "::", ";" to ";;", and remove newline character
++ * for example: "abc:def;ghi" transfer to "abc::def;;ghi"
++ */
++static char *hievent_make_regular(char *value)
++{
++	int count = 0;
++	int len = 0;
++	char *temp = value;
++	char *regular = NULL;
++	char *regular_tmp = NULL;
++	size_t regular_len;
++
++	while (*temp != '\0') {
++		if (*temp == ':')
++			count++;
++		else if (*temp == ';')
++			count++;
++		else if ((*temp == '\n') || (*temp == '\r'))
++			*temp = ' ';
++
++		temp++;
++		len++;
++	}
++
++	/* no need to transfer, just return old value */
++	if (count == 0)
++		return value;
++
++	regular_len = len + count * 2 + 1; // 2 char in a byte
++	regular = kmalloc(regular_len, GFP_KERNEL);
++	if (!regular)
++		return NULL;
++
++	(void)memset(regular, 0, regular_len);
++	regular_tmp = regular;
++	temp = value;
++	while (*temp != 0) {
++		if ((*temp == ':') || (*temp == ';'))
++			*regular_tmp++ = *temp;
++
++		*regular_tmp++ = *temp;
++		temp++;
++	}
++	*regular_tmp = '\0';
++
++	return regular;
++}
++
++int logbuff_to_exception(char category, int level, char log_type,
++			 char sn, const char *msg, int msglen)
++{
++	struct idap_header *hdr = NULL;
++	size_t buf_len = sizeof(int) + sizeof(struct idap_header) + msglen;
++	int ret;
++	int *check_code = NULL;
++	char *buffer = kmalloc(buf_len, GFP_KERNEL);
++
++	if (!buffer)
++		return -ENOMEM;
++
++	check_code = (int *)buffer;
++	*check_code = CHECK_CODE;
++
++	hdr = (struct idap_header *)(buffer + sizeof(int));
++	hdr->level = level;
++	hdr->category = category;
++	hdr->log_type = log_type;
++	hdr->sn = sn;
++
++	memcpy(buffer + sizeof(int) + sizeof(struct idap_header), msg, msglen);
++
++	ret = hievent_write_internal(buffer, buf_len);
++
++	kfree(buffer);
++
++	return ret;
++}
++
++static int hievent_fill_payload(struct hiview_hievent *event, char **pbuf,
++				char *tmp, int length)
++{
++	struct hievent_payload *p = event->head;
++	int len = length;
++	int tmplen;
++	unsigned int keycount = 0;
++
++	while (p) {
++		char *value = NULL;
++		char *regular_value = NULL;
++		int need_free = 1;
++
++		if (!p->value) {
++			p = p->next;
++			continue;
++		}
++		if (keycount == 0) {
++			tmplen = snprintf(tmp, len - 1, " --extra ");
++			BUF_POINTER_FORWARD;
++		}
++		keycount++;
++
++		/* fill key */
++		if (p->key)
++			tmplen = snprintf(tmp, len - 1, "%s:", p->key);
++
++		BUF_POINTER_FORWARD;
++		/* fill value */
++		tmplen = 0;
++
++		value = p->value;
++		regular_value = hievent_make_regular(value);
++		if (!regular_value) {
++			regular_value = "NULL";
++			need_free = 0;
++		}
++		tmplen = snprintf(tmp, len - 1, "%s;", regular_value);
++		if ((value != regular_value) && need_free)
++			kfree(regular_value);
++
++		BUF_POINTER_FORWARD;
++		p = p->next;
++	}
++	return len;
++}
++
++static int hievent_convert_string(struct hiview_hievent *event, char **pbuf)
++{
++	int len;
++	char *tmp = NULL;
++	int tmplen;
++	unsigned int i;
++
++	char *buf = kmalloc(EVENT_INFO_BUF_LEN, GFP_KERNEL);
++
++	if (!buf) {
++		*pbuf = NULL;
++		return 0;
++	}
++
++	(void)memset(buf, 0, EVENT_INFO_BUF_LEN);
++	len = EVENT_INFO_BUF_LEN;
++	tmp = buf;
++
++	/* fill eventid */
++	tmplen = snprintf(tmp, len - 1, "eventid %d", event->eventid);
++	BUF_POINTER_FORWARD;
++
++	/* fill the path */
++	for (i = 0; i < MAX_PATH_NUMBER; i++) {
++		if (!event->file_path[i])
++			break;
++
++		tmplen = snprintf(tmp, len - 1, " -i %s", event->file_path[i]);
++		BUF_POINTER_FORWARD;
++	}
++
++	/* fill time */
++	if (event->time) {
++		tmplen = snprintf(tmp, len - 1, " -t %lld",  event->time);
++		BUF_POINTER_FORWARD;
++	}
++
++	/* fill the payload info */
++	len = hievent_fill_payload(event, pbuf, tmp, len);
++	*pbuf = buf;
++	return (EVENT_INFO_BUF_LEN - len);
++}
++
++#define IDAP_LOGTYPE_CMD 1
++static int hievent_write_logexception(char *str, const int strlen)
++{
++	char tempchr;
++	char *strptr = str;
++	int left_buf_len = strlen + 1;
++	int sent_cnt = 0;
++
++	while (left_buf_len > 0) {
++		if (left_buf_len > EVENT_INFO_PACK_BUF_LEN) {
++			tempchr = strptr[EVENT_INFO_PACK_BUF_LEN - 1];
++			strptr[EVENT_INFO_PACK_BUF_LEN - 1] = '\0';
++			logbuff_to_exception(0, 0, IDAP_LOGTYPE_CMD, 1, strptr,
++					     EVENT_INFO_PACK_BUF_LEN);
++			left_buf_len -= (EVENT_INFO_PACK_BUF_LEN - 1);
++			strptr += (EVENT_INFO_PACK_BUF_LEN - 1);
++			strptr[0] = tempchr;
++			sent_cnt++;
++		} else {
++			logbuff_to_exception(0, 0, IDAP_LOGTYPE_CMD, 0, strptr,
++					     left_buf_len);
++			sent_cnt++;
++			break;
++		}
++	}
++
++	return sent_cnt;
++}
++
++int hievent_report(struct hiview_hievent *obj)
++{
++	char *str = NULL;
++	int buf_len;
++	int sent_packet;
++
++	if (!obj) {
++		pr_err("Bad event %s", __func__);
++		return -EINVAL;
++	}
++
++	buf_len = hievent_convert_string(obj, &str);
++	if (!str)
++		return -EINVAL;
++
++	sent_packet = hievent_write_logexception(str, buf_len);
++	pr_err("report: %s", str);
++	kfree(str);
++
++	return sent_packet;
++}
++
++void hievent_destroy(struct hiview_hievent *event)
++{
++	int i;
++	struct hievent_payload *p = NULL;
++
++	if (!event)
++		return;
++
++	p = event->head;
++	while (p) {
++		struct hievent_payload *del = p;
++
++		p = p->next;
++		hievent_payload_destroy(del);
++	}
++
++	event->head = NULL;
++	for (i = 0; i < MAX_PATH_NUMBER; i++) {
++		kfree(event->file_path[i]);
++		event->file_path[i] = NULL;
++	}
++
++	kfree(event);
++}
+diff --git a/drivers/staging/hievent/hiview_hievent.h b/drivers/staging/hievent/hiview_hievent.h
+new file mode 100644
+index 000000000..48d4ae32b
+--- /dev/null
++++ b/drivers/staging/hievent/hiview_hievent.h
+@@ -0,0 +1,44 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2021 Huawei Technologies Co., Ltd. All rights reserved.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#ifndef HIVIEW_HIEVENT_H
++#define HIVIEW_HIEVENT_H
++
++#define MAX_PATH_NUMBER     10
++
++/* hievent struct */
++struct hiview_hievent {
++	unsigned int eventid;
++
++	long long time;
++
++	/* payload linked list */
++	struct hievent_payload *head;
++
++	/* file path needs uploaded */
++	char *file_path[MAX_PATH_NUMBER];
++};
++
++struct hiview_hievent *hievent_create(unsigned int eventid);
++int hievent_put_integer(struct hiview_hievent *event,
++			const char *key, long value);
++int hievent_put_string(struct hiview_hievent *event,
++		       const char *key, const char *value);
++int hievent_set_time(struct hiview_hievent *event, long long seconds);
++int hievent_add_filepath(struct hiview_hievent *event, const char *path);
++int hievent_report(struct hiview_hievent *obj);
++void hievent_destroy(struct hiview_hievent *event);
++
++#endif /* HIVIEW_HIEVENT_H */
+diff --git a/drivers/staging/hilog/Kconfig b/drivers/staging/hilog/Kconfig
+new file mode 100644
+index 000000000..2ebe74017
+--- /dev/null
++++ b/drivers/staging/hilog/Kconfig
+@@ -0,0 +1,23 @@
++#
++# Sensor device configuration
++#
++
++config HILOG
++	tristate "Hilog support"
++	default n
++	help
++	  hilog buffer manager.
++
++	  Hilog is a simple log manager for OpenHarmonyOS.
++	  log string write to /dev/hilog, and the hilog driver copy it
++	  to the ring buffer. Ring buffer can be read from userspace.
++
++	  If unsure, say N.
++
++config HILOG_BUFFER_SIZE
++	int "hilog buffer size"
++	depends on HILOG
++	default 4096
++	help
++		Define the default ring buffer size of hilog
++
+diff --git a/drivers/staging/hilog/Makefile b/drivers/staging/hilog/Makefile
+new file mode 100644
+index 000000000..e53c86a5d
+--- /dev/null
++++ b/drivers/staging/hilog/Makefile
+@@ -0,0 +1,5 @@
++#
++# Makefile for the hi hilog drivers.
++#
++
++obj-$(CONFIG_HILOG)	+= hilog.o
+diff --git a/drivers/staging/hilog/hilog.c b/drivers/staging/hilog/hilog.c
+new file mode 100644
+index 000000000..808c7b2ce
+--- /dev/null
++++ b/drivers/staging/hilog/hilog.c
+@@ -0,0 +1,382 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2021 Huawei Technologies Co., Ltd. All rights reserved.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/uaccess.h>
++#include <linux/fs.h>
++#include <linux/slab.h>
++#include <linux/cdev.h>
++#include <linux/sched.h>
++#include <linux/time.h>
++#include <linux/timex.h>
++#include <linux/rtc.h>
++
++#ifndef HILOGDEV_MAJOR
++#define HILOGDEV_MAJOR 245
++#endif
++
++#ifndef HILOG_NR_DEVS
++#define HILOG_NR_DEVS 2
++#endif
++
++#ifndef MEMDEV_SIZE
++#define MEMDEV_SIZE 4096
++#endif
++
++static int hilog_major = HILOGDEV_MAJOR;
++
++module_param(hilog_major, int, 0444);
++
++struct cdev g_hilog_cdev;
++
++#define HILOG_BUFFER CONFIG_HILOG_BUFFER_SIZE
++#define HILOG_DRIVER "/dev/hilog"
++
++struct hilog_entry {
++	unsigned int len;
++	unsigned int header_size;
++	unsigned int pid : 16;
++	unsigned int task_id : 16;
++	unsigned int sec;
++	unsigned int nsec;
++	unsigned int reserved;
++	char msg[0];
++};
++
++static ssize_t hilog_write(struct file *file,
++			   const char __user *user_buf,
++			   size_t count, loff_t *ppos);
++static ssize_t hilog_read(struct file *file,
++			  char __user *user_buf, size_t count, loff_t *ppos);
++
++static const struct file_operations hilog_fops = {
++	.read = hilog_read,
++	.write = hilog_write,
++};
++
++struct hilog_char_device {
++	int flag;
++	struct mutex mtx; /* lock to protect read/write buffer */
++	unsigned char *buffer;
++	wait_queue_head_t wq;
++	size_t wr_off;
++	size_t hdr_off;
++	size_t size;
++	size_t count;
++} hilog_dev;
++
++static inline unsigned char *hilog_buffer_head(void)
++{
++	return hilog_dev.buffer + hilog_dev.hdr_off;
++}
++
++static void hilog_buffer_inc(size_t sz)
++{
++	if (hilog_dev.size + sz <= HILOG_BUFFER) {
++		hilog_dev.size += sz;
++		hilog_dev.wr_off += sz;
++		hilog_dev.wr_off %= HILOG_BUFFER;
++		hilog_dev.count++;
++	}
++}
++
++static void hilog_buffer_dec(size_t sz)
++{
++	if (hilog_dev.size >= sz) {
++		hilog_dev.size -= sz;
++		hilog_dev.hdr_off += sz;
++		hilog_dev.hdr_off %= HILOG_BUFFER;
++		hilog_dev.count--;
++	}
++}
++
++static int hilog_read_ring_buff(unsigned char __user *buffer, size_t buf_len)
++{
++	size_t retval;
++	size_t buf_left = HILOG_BUFFER - hilog_dev.hdr_off;
++
++	if (buf_left > buf_len) {
++		retval = copy_to_user(buffer, hilog_buffer_head(), buf_len);
++	} else {
++		size_t mem_len = (buf_len > buf_left) ? buf_left : buf_len;
++
++		retval = copy_to_user(buffer, hilog_buffer_head(), mem_len);
++		if (retval < 0)
++			return retval;
++
++		retval = copy_to_user(buffer + buf_left, hilog_dev.buffer,
++				      buf_len - buf_left);
++	}
++	return retval;
++}
++
++static int hilog_read_ring_head_buffer(unsigned char *buffer, size_t buf_len)
++{
++	size_t buf_left = HILOG_BUFFER - hilog_dev.hdr_off;
++
++	if (buf_left > buf_len) {
++		memcpy(buffer, hilog_buffer_head(), buf_len);
++	} else {
++		size_t mem_len = (buf_len > buf_left) ? buf_left : buf_len;
++
++		memcpy(buffer, hilog_buffer_head(), mem_len);
++		memcpy(buffer + buf_left, hilog_dev.buffer, buf_len - buf_left);
++	}
++
++	return 0;
++}
++
++static ssize_t hilog_read(struct file *file,
++			  char __user *user_buf, size_t count, loff_t *ppos)
++{
++	size_t retval;
++	struct hilog_entry header;
++
++	(void)file;
++	if (wait_event_interruptible(hilog_dev.wq, (hilog_dev.size > 0)))
++		return -EINVAL;
++
++	(void)mutex_lock(&hilog_dev.mtx);
++
++	retval = hilog_read_ring_head_buffer((unsigned char *)&header,
++					     sizeof(header));
++	if (retval < 0) {
++		retval = -EINVAL;
++		goto out;
++	}
++
++	if (count < header.len + sizeof(header)) {
++		pr_err("buffer too small,buf_len=%d, header.len=%d,%d\n",
++		       count, header.len, header.header_size);
++		retval = -ENOMEM;
++		goto out;
++	}
++
++	hilog_buffer_dec(sizeof(header));
++	retval = copy_to_user((unsigned char *)user_buf,
++			      (unsigned char *)&header,
++			      min(count, sizeof(header)));
++
++	if (retval < 0) {
++		retval = -EINVAL;
++		goto out;
++	}
++
++	retval = hilog_read_ring_buff((unsigned char *)
++				      (user_buf + sizeof(header)),
++				      header.len);
++	if (retval < 0) {
++		retval = -EINVAL;
++		goto out;
++	}
++
++	hilog_buffer_dec(header.len);
++	retval = header.len + sizeof(header);
++out:
++	if (retval == -ENOMEM) {
++		// clean ring buffer
++		hilog_dev.wr_off = 0;
++		hilog_dev.hdr_off = 0;
++		hilog_dev.size = 0;
++		hilog_dev.count = 0;
++	}
++	(void)mutex_unlock(&hilog_dev.mtx);
++
++	return retval;
++}
++
++static int hilog_write_ring_buffer(unsigned char __user *buffer, size_t buf_len)
++{
++	int retval;
++	size_t buf_left = HILOG_BUFFER - hilog_dev.wr_off;
++
++	if (buf_len > buf_left) {
++		retval = copy_from_user(hilog_dev.buffer + hilog_dev.wr_off,
++					buffer, buf_left);
++		if (retval)
++			return -1;
++		retval = copy_from_user(hilog_dev.buffer, buffer + buf_left,
++					min(HILOG_BUFFER, buf_len - buf_left));
++	} else {
++		retval = copy_from_user(hilog_dev.buffer + hilog_dev.wr_off,
++					buffer, min(buf_left, buf_len));
++	}
++
++	if (retval < 0)
++		return -1;
++
++	return 0;
++}
++
++static int hilog_write_ring_head_buffer(unsigned char *buffer, size_t buf_len)
++{
++	size_t buf_left = HILOG_BUFFER - hilog_dev.wr_off;
++
++	if (buf_len > buf_left) {
++		memcpy(hilog_dev.buffer + hilog_dev.wr_off,
++		       buffer, buf_left);
++		memcpy(hilog_dev.buffer, buffer + buf_left,
++		       min(HILOG_BUFFER, buf_len - buf_left));
++	} else {
++		memcpy(hilog_dev.buffer + hilog_dev.wr_off,
++		       buffer, min(buf_left, buf_len));
++	}
++
++	return 0;
++}
++
++static void hilog_head_init(struct hilog_entry *header, size_t len)
++{
++#define NANOSEC_PER_MIRCOSEC 1000
++	struct timeval now = { 0 };
++
++	do_gettimeofday(&now);
++	header->len = len;
++	header->pid = current->pid;
++	header->task_id = current->pid;
++	header->sec = now.tv_sec;
++	header->nsec = now.tv_usec * NANOSEC_PER_MIRCOSEC;
++	header->header_size = sizeof(struct hilog_entry);
++}
++
++static void hilog_cover_old_log(size_t buf_len)
++{
++	int retval;
++	struct hilog_entry header;
++	size_t total_size = buf_len + sizeof(struct hilog_entry);
++	int drop_log_lines = 0;
++
++	while (total_size + hilog_dev.size > HILOG_BUFFER) {
++		retval = hilog_read_ring_head_buffer((unsigned char *)&header,
++						     sizeof(header));
++		if (retval < 0)
++			break;
++
++		drop_log_lines++;
++		hilog_buffer_dec(sizeof(header) + header.len);
++	}
++	if (drop_log_lines > 0)
++		pr_info("hilog ringbuffer full, drop %d line(s) log",
++			drop_log_lines);
++}
++
++int hilog_write_internal(const char __user *buffer, size_t buf_len)
++{
++	struct hilog_entry header;
++	int retval;
++
++	(void)mutex_lock(&hilog_dev.mtx);
++	hilog_cover_old_log(buf_len);
++	hilog_head_init(&header, buf_len);
++
++	retval = hilog_write_ring_head_buffer((unsigned char *)&header,
++					      sizeof(header));
++	if (retval) {
++		retval = -ENODATA;
++		goto out;
++	}
++	hilog_buffer_inc(sizeof(header));
++
++	retval = hilog_write_ring_buffer((unsigned char *)(buffer), header.len);
++	if (retval) {
++		retval = -ENODATA;
++		goto out;
++	}
++
++	hilog_buffer_inc(header.len);
++
++	retval = header.len;
++
++out:
++	(void)mutex_unlock(&hilog_dev.mtx);
++	if (retval > 0)
++		wake_up_interruptible(&hilog_dev.wq);
++	else if (retval < 0)
++		pr_err("write fail retval=%d\n", retval);
++
++	return retval;
++}
++
++static ssize_t hilog_write(struct file *file,
++			   const char __user *user_buf,
++			   size_t count, loff_t *ppos)
++{
++	(void)file;
++	if (count + sizeof(struct hilog_entry) > HILOG_BUFFER) {
++		pr_err("input too large\n");
++		return -ENOMEM;
++	}
++
++	return hilog_write_internal(user_buf, count);
++}
++
++static void hilog_device_init(void)
++{
++	hilog_dev.buffer = kmalloc(HILOG_BUFFER, GFP_KERNEL);
++	if (!hilog_dev.buffer)
++		return;
++
++	init_waitqueue_head(&hilog_dev.wq);
++	mutex_init(&hilog_dev.mtx);
++	hilog_dev.wr_off = 0;
++	hilog_dev.hdr_off = 0;
++	hilog_dev.size = 0;
++	hilog_dev.count = 0;
++}
++
++static int __init hilogdev_init(void)
++{
++	int result;
++	dev_t devno = MKDEV(hilog_major, 0);
++
++	result = register_chrdev_region(devno, 2, "hilog");
++	if (result < 0) {
++		pr_emerg("\t register hilog error %d\n", result);
++		return result;
++	}
++
++	cdev_init(&g_hilog_cdev, &hilog_fops);
++	g_hilog_cdev.owner = THIS_MODULE;
++	g_hilog_cdev.ops = &hilog_fops;
++
++	cdev_add(&g_hilog_cdev, MKDEV(hilog_major, 0), HILOG_NR_DEVS);
++
++	hilog_device_init();
++	return 0;
++}
++
++static void __exit hilog_exit_module(void)
++{
++	cdev_del(&g_hilog_cdev);
++	unregister_chrdev_region(MKDEV(hilog_major, 0), HILOG_NR_DEVS);
++}
++
++static int __init hilog_init_module(void)
++{
++	int state = hilogdev_init();
++
++	pr_info("\t hilog_init Start%d\n", state);
++	return 0;
++}
++
++module_init(hilog_init_module);
++module_exit(hilog_exit_module);
++
++MODULE_AUTHOR("OHOS");
++MODULE_DESCRIPTION("User mode hilog device interface");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("hilog");
+-- 
+2.55.0
+

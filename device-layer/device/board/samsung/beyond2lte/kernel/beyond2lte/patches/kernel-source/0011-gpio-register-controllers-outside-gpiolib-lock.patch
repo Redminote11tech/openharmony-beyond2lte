@@ -1,0 +1,212 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: OpenHarmony S10+ Port <port@localhost>
+Date: Sat, 10 Oct 2026 08:35:00 +0100
+Subject: [PATCH] gpio: snapshot chips and register outside gpiolib lock
+
+gpiochip_find callbacks run under gpio_lock with interrupts disabled.
+Copy only scalar metadata there; allocate and register HDF controllers
+in process context. Track ownership for rollback and release outside
+the gpiolib lock. Propagate allocation/registration/enumeration failures.
+
+diff --git a/drivers/hdf/khdf/platform/gpio/gpio_adapter.c b/drivers/hdf/khdf/platform/gpio/gpio_adapter.c
+index 75e7d1989..388a5637f 100644
+--- a/drivers/hdf/khdf/platform/gpio/gpio_adapter.c
++++ b/drivers/hdf/khdf/platform/gpio/gpio_adapter.c
+@@ -237,93 +237,132 @@ static int32_t LinuxGpioBind(struct HdfDeviceObject *device)
+     return HDF_SUCCESS;
+ }
+ 
+-static int LinuxGpioMatchProbe(struct gpio_chip *chip, void *data)
++struct LinuxGpioEntry {
++    uint16_t start;
++    uint16_t count;
++    struct GpioCntlr *cntlr;
++};
++
++struct LinuxGpioSnapshot {
++    uint32_t count;
++    uint32_t capacity;
++    bool overflow;
++    struct LinuxGpioEntry *entries;
++};
++
++/* gpiochip_find invokes this callback under gpio_lock with IRQs disabled.
++ * Only copy scalar metadata; allocation and HDF manager operations may sleep.
++ * No gpio_chip pointer survives the locked enumeration. */
++static int LinuxGpioSnapshotChip(struct gpio_chip *chip, void *data)
+ {
+-    int32_t ret;
+-    struct GpioCntlr *cntlr = NULL;
++    struct LinuxGpioSnapshot *snapshot = data;
+ 
+-    (void)data;
+-    if (chip == NULL) {
+-        HDF_LOGE("LinuxGpioMatchProbe: chip is null!\n");
++    if (chip == NULL || chip->base < 0 || chip->ngpio == 0 ||
++        chip->base >= LINUX_GPIO_NUM_MAX || chip->ngpio > (uint32_t)(LINUX_GPIO_NUM_MAX - chip->base)) {
+         return 0;
+     }
+-    HDF_LOGI("LinuxGpioMatchProbe: find gpio chip(start:%d, count:%u)", chip->base, chip->ngpio);
+-    if (chip->base >= LINUX_GPIO_NUM_MAX || (chip->base + chip->ngpio) > LINUX_GPIO_NUM_MAX) {
+-        HDF_LOGW("LinuxGpioMatchProbe: chip(base:%d-num:%u) exceed range!", chip->base, chip->ngpio);
+-        return 0;
++    if (snapshot->count >= LINUX_GPIO_NUM_MAX ||
++        (snapshot->entries != NULL && snapshot->count >= snapshot->capacity)) {
++        snapshot->overflow = true;
++        return 1;
+     }
+-
+-    cntlr = (struct GpioCntlr *)OsalMemCalloc(sizeof(*cntlr));
+-    if (cntlr == NULL) {
+-        HDF_LOGE("LinuxGpioMatchProbe: malloc cntlr fail!");
+-        return HDF_ERR_MALLOC_FAIL;
++    if (snapshot->entries != NULL) {
++        snapshot->entries[snapshot->count].start = (uint16_t)chip->base;
++        snapshot->entries[snapshot->count].count = (uint16_t)chip->ngpio;
+     }
+-
+-    cntlr->ops = &g_method;
+-    cntlr->start = (uint16_t)chip->base;
+-    cntlr->count = (uint16_t)chip->ngpio;
+-    ret = GpioCntlrAdd(cntlr);
+-    if (ret != HDF_SUCCESS) {
+-        HDF_LOGE("LinuxGpioMatchProbe: add gpio controller(start:%d, count:%u) fail:%d!",
+-            cntlr->start, cntlr->count, ret);
+-        OsalMemFree(cntlr);
+-        return ret;
+-    }
+-
+-    HDF_LOGI("LinuxGpioMatchProbe: add gpio controller(start:%d, count:%u) succeed!",
+-        cntlr->start, cntlr->count);
+-    return 0; // return 0 to continue
++    snapshot->count++;
++    return 0;
+ }
+ 
+-static int32_t LinuxGpioInit(struct HdfDeviceObject *device)
++static void LinuxGpioFreeSnapshot(struct LinuxGpioSnapshot *snapshot)
+ {
+-    if (device == NULL) {
+-        HDF_LOGE("LinuxGpioInit: device is null!");
+-        return HDF_ERR_INVALID_OBJECT;
+-    }
++    uint32_t i;
+ 
+-    (void)gpiochip_find(device, LinuxGpioMatchProbe);
+-    HDF_LOGI("LinuxGpioInit: dev service:%s init done!", HdfDeviceGetServiceName(device));
+-    return HDF_SUCCESS;
++    if (snapshot == NULL) {
++        return;
++    }
++    for (i = 0; i < snapshot->count; i++) {
++        if (snapshot->entries[i].cntlr != NULL) {
++            GpioCntlrRemove(snapshot->entries[i].cntlr);
++            OsalMemFree(snapshot->entries[i].cntlr);
++        }
++    }
++    OsalMemFree(snapshot->entries);
++    OsalMemFree(snapshot);
+ }
+ 
+-static int LinuxGpioMatchRelease(struct gpio_chip *chip, void *data)
++static int32_t LinuxGpioInit(struct HdfDeviceObject *device)
+ {
+-    struct GpioCntlr *cntlr = NULL;
++    struct LinuxGpioSnapshot sizing = {0};
++    struct LinuxGpioSnapshot *snapshot;
++    struct GpioCntlr *cntlr;
++    uint32_t i;
++    int32_t ret;
+ 
+-    (void)data;
+-    if (chip == NULL) {
+-        HDF_LOGE("LinuxGpioMatchRelease: chip is null!");
+-        return 0;
++    if (device == NULL || device->priv != NULL) {
++        HDF_LOGE("LinuxGpioInit: invalid device or already initialized!");
++        return HDF_ERR_INVALID_OBJECT;
+     }
+-    HDF_LOGI("LinuxGpioMatchRelease: find gpio chip(start:%d, count:%u)", chip->base, chip->ngpio);
+-    if (chip->base >= LINUX_GPIO_NUM_MAX || (chip->base + chip->ngpio) > LINUX_GPIO_NUM_MAX) {
+-        HDF_LOGW("LinuxGpioMatchRelease: chip(base:%d-num:%u) exceed range!", chip->base, chip->ngpio);
+-        return 0;
++    (void)gpiochip_find(&sizing, LinuxGpioSnapshotChip);
++    if (sizing.overflow) {
++        return HDF_ERR_INVALID_PARAM;
+     }
+-
+-    cntlr = GpioCntlrGetByGpio((uint16_t)chip->base);
+-    if (cntlr == NULL) {
+-        HDF_LOGW("LinuxGpioMatchRelease: get cntlr failed for base:%d!", chip->base);
+-        return 0;
++    if (sizing.count == 0) {
++        return HDF_SUCCESS;
+     }
+-    GpioCntlrPut(cntlr); // !!! be careful to keep the reference count balanced
+-
+-    HDF_LOGI("LinuxGpioMatchRelease: gona remove gpio controller(start:%d, count:%u)",
+-        cntlr->start, cntlr->count);
+-    GpioCntlrRemove(cntlr);
+-    OsalMemFree(cntlr);
+-    return 0; // return 0 to continue
++    snapshot = OsalMemCalloc(sizeof(*snapshot));
++    if (snapshot == NULL) {
++        return HDF_ERR_MALLOC_FAIL;
++    }
++    snapshot->capacity = sizing.count;
++    snapshot->entries = OsalMemCalloc(snapshot->capacity * sizeof(*snapshot->entries));
++    if (snapshot->entries == NULL) {
++        OsalMemFree(snapshot);
++        return HDF_ERR_MALLOC_FAIL;
++    }
++    (void)gpiochip_find(snapshot, LinuxGpioSnapshotChip);
++    if (snapshot->overflow) {
++        /* Chip enumeration changed between passes: fail cleanly, do not
++         * register a truncated set or allocate from the locked callback. */
++        LinuxGpioFreeSnapshot(snapshot);
++        return HDF_ERR_INVALID_PARAM;
++    }
++    for (i = 0; i < snapshot->count; i++) {
++        cntlr = OsalMemCalloc(sizeof(*cntlr));
++        if (cntlr == NULL) {
++            LinuxGpioFreeSnapshot(snapshot);
++            return HDF_ERR_MALLOC_FAIL;
++        }
++        cntlr->ops = &g_method;
++        cntlr->start = snapshot->entries[i].start;
++        cntlr->count = snapshot->entries[i].count;
++        ret = GpioCntlrAdd(cntlr);
++        if (ret != HDF_SUCCESS) {
++            HDF_LOGE("LinuxGpioInit: add controller(start:%u, count:%u) failed:%d!",
++                cntlr->start, cntlr->count, ret);
++            OsalMemFree(cntlr);
++            LinuxGpioFreeSnapshot(snapshot);
++            return ret;
++        }
++        snapshot->entries[i].cntlr = cntlr;
++    }
++    device->priv = snapshot;
++    HDF_LOGI("LinuxGpioInit: dev service:%s init done!", HdfDeviceGetServiceName(device));
++    return HDF_SUCCESS;
+ }
+ 
+ static void LinuxGpioRelease(struct HdfDeviceObject *device)
+ {
++    struct LinuxGpioSnapshot *snapshot;
++
+     if (device == NULL) {
+-        HDF_LOGE("LinuxGpioRelease: device is null!");
+         return;
+     }
+-
+-    (void)gpiochip_find(device, LinuxGpioMatchRelease);
++    snapshot = device->priv;
++    device->priv = NULL;
++    /* Remove only this device's registered controllers, outside gpio_lock,
++     * including controllers whose Linux gpio_chip disappeared after init. */
++    LinuxGpioFreeSnapshot(snapshot);
+ }
+ 
+ struct HdfDriverEntry g_gpioLinuxDriverEntry = {
+-- 
+2.43.0

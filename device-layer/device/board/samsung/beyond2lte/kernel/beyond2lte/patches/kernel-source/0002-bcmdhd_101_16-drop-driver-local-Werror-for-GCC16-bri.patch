@@ -1,0 +1,26 @@
+From 396a13fbed3e4ffced0d8adbe3aa7e86f731c046 Mon Sep 17 00:00:00 2001
+From: redminote11tech <redminote11tech@users.noreply.github.com>
+Date: Tue, 22 Sep 2026 17:58:54 +0100
+Subject: [PATCH 2/8] bcmdhd_101_16: drop driver-local -Werror for GCC16
+ bring-up
+
+---
+ drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile b/drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile
+index 9f9567eb5..96ff0b279 100644
+--- a/drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile
++++ b/drivers/net/wireless/broadcom/bcmdhd_101_16/Makefile
+@@ -24,7 +24,7 @@
+ #####################
+ 
+ DHDCFLAGS += -DBCMUTILS_ERR_CODES -DUSE_NEW_RSPEC_DEFS
+-DHDCFLAGS += -Wall -Werror -Wstrict-prototypes -Dlinux -DLINUX -DBCMDRIVER      \
++DHDCFLAGS += -Wall -Wstrict-prototypes -Dlinux -DLINUX -DBCMDRIVER      \
+         -DBCMDONGLEHOST -DUNRELEASEDCHIP -DBCMDMA32 -DBCMFILEIMAGE      \
+         -DDHDTHREAD -DDHD_BCMEVENTS -DSHOW_EVENTS -DWLP2P      \
+         -DWIFI_ACT_FRAME -DARP_OFFLOAD_SUPPORT -DKEEP_ALIVE -DCSCAN     \
+-- 
+2.55.0
+

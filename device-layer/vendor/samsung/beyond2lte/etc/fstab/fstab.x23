@@ -1,0 +1,64 @@
+# Volla X23 fstab — Phase N3.1 native-boot mounts
+#
+# Read by mount_fstab_sp (init.cfg:16) at OHOS pre-init for non-required mounts.
+# REQUIRED mounts (system/vendor/userdata) are delivered via kernel cmdline
+# ohos.required_mount.* (set by kernel/x23/build_boot_img_ohos.sh) so they
+# happen at first-stage before SwitchRoot.
+#
+# Allowed fs_mgr flags (per fstab.c parsing): wait, check, required, nofail,
+# hvb, projquota, casefold, compression, dedup, formattable.
+#
+# This file is for SECOND-STAGE mounts only. Anything time-critical for the
+# /usr SwitchRoot must go in the cmdline, not here.
+#
+#<src>                                  <mnt>           <type>  <mnt_flags>            <fs_mgr_flags>
+
+# Note on device paths: /dev/disk/by-partlabel/* is NOT populated by
+# ueventd on this device — the Halium-shipped ueventd rules only create
+# /dev/block/platform/soc/11270000.ufshci/by-name/* symlinks (matching
+# the MT6789 UFS controller path).  Use those literal paths here.
+
+# Misc partition (bootloader command messages, OEM unlock signals) — optional
+/dev/block/platform/soc/11270000.ufshci/by-name/misc             /misc           none    none                   wait,nofail
+
+# Persist (factory calibration, bluetooth pairing keys) — optional, read-only
+/dev/block/platform/soc/11270000.ufshci/by-name/persist          /persist        ext4    ro,nosuid,nodev        wait,nofail
+
+# Userdata — OHOS-writable /data.  Must be mounted before init.cfg's
+# pre-init `load_access_token_id` cmd runs, otherwise SetSelfTokenID
+# silently no-ops because the nativetoken.json write fails on RO /,
+# every native service ends up with tokenId=0/tokenType=TOKEN_INVALID,
+# and samgr's CanRequest rejects all SA registrations.
+# mount_fstab_sp processes this file before load_access_token_id (see
+# base/startup/init/services/etc/init.cfg pre-init job order).
+# Halium also uses this partition when booted, but its data layout
+# (android-data/, app/, cache/, …) coexists peacefully with OHOS's
+# service/el0/ tree.
+#
+# NOTE: mounted WITHOUT noexec.  App native libraries live under the app
+# sandbox in /data (e.g. /data/app/.../<bundle>/libs/arm64/*.so) and must
+# be mmap'd PROT_EXEC.  Stock OHOS keeps /data noexec and relies on the
+# kernel XPM ("eXecutable Permission Manager") to grant per-file exec for
+# code-signed app .so files; the Halium 5.10 kernel has no XPM, so noexec
+# is enforced strictly and every app native lib fails to load.  Most OHOS
+# apps are pure ArkTS bytecode and don't notice, but webview apps need
+# libarkweb_engine.so from ArkWebCore's sandbox dir — with noexec it fails
+# (`mmap fix failed errno=1`), the webview never initialises, and the app
+# shows a blank white screen.  Dropping noexec restores app .so loading.
+# `formattable`: reformat ext4 when the mount fails.  MountOneItem runs
+# resize2fs + e2fsck on an ext4 /data first, so this only fires when a
+# repaired mount still fails — i.e. a first install over a stock
+# (f2fs + FBE) userdata, which OHOS cannot mount at all.
+/dev/block/platform/soc/11270000.ufshci/by-name/userdata         /data           ext4    nosuid,nodev           wait,nofail,formattable
+
+# chip_prod / sys_prod logical partitions inside super are mounted in the
+# chainload (init-chainload.sh Stage 3) — NOT here.  sys_prod must be
+# present before OHOS init's InitLoadParamFiles() runs (which is before
+# pre-init's mount_fstab_sp), so the chainload is the only correct place.
+# These lines stay commented out as documentation:
+# /dev/mapper/chip_prod_a               /chip_prod      ext4    ro,barrier=1           wait,nofail
+# /dev/mapper/sys_prod_a                /sys_prod       ext4    ro,barrier=1           wait,nofail
+
+# Note: the Halium Android rootfs is mounted by the androidd launcher (Phase N4)
+# inside its own mount namespace — NOT here. The required mounts (system at /usr,
+# vendor at /vendor, userdata at /data) come from kernel cmdline.

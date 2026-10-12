@@ -1,0 +1,54 @@
+# Copyright (c) 2023 Diemit <598757652@qq.com>
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//vendor/${product_company}/${device_name}/product.gni")
+
+# NB: install to /sys_prod, NOT /vendor. SceneSessionManager (which parses this
+# file via config_policy GetOneCfgFile) runs inside the com.ohos.sceneboard app
+# sandbox, and that sandbox does NOT mount /vendor/etc/window/resources (nor the
+# /chipset symlink). It does mount /system and /sys_prod, both of which are
+# config_policy layers. Installed under /vendor the file is invisible to
+# sceneboard, LoadConfigXml() falls back to the non-existent
+# /system/etc/window/resources/window_manager_config.xml, and SystemSessionConfig
+# keeps its compiled default isSystemDecorEnable_=true — which draws the PC/tablet
+# window decoration bar (minimize/split/close) on top of every app on this phone
+# form factor. /sys_prod is visible in the sandbox and outranks /system, so the
+# decor enable="false" override actually loads. (display_manager_config below is
+# read by the native ScreenSessionManager SA, which is not sandboxed, so it can
+# stay on /vendor.)
+ohos_prebuilt_etc("window_manager_config") {
+    source = "window_manager_config.xml"
+    install_enable = true
+    install_images = [ sys_prod_base_dir ]
+    part_name = "product_beyond2lte"
+    relative_install_dir = "window/resources"
+}
+
+# Initial Samsung configuration uses the platform default DPI until panel
+# dimensions and mode are validated on the phone. No Volla density layer is
+# installed for beyond2lte. This config does not provide a display driver.
+ohos_prebuilt_etc("display_manager_config_beyond2lte") {
+  source = "devices/beyond2lte/display_manager_config.xml"
+  install_enable = true
+  install_images = [ sys_prod_base_dir ]
+  part_name = "product_beyond2lte"
+  relative_install_dir = "window/resources"
+}
+
+group("window_config") {
+  deps = [
+    ":display_manager_config_beyond2lte",
+    ":window_manager_config",
+  ]
+}

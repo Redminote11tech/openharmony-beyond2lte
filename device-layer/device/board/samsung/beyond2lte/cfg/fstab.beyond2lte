@@ -1,0 +1,18 @@
+# beyond2lte fstab — OH init. Sources: stock fstab.exynos9820 (extracted
+# from boot.img ramdisk 2026-09-24) + OH required_mount conventions.
+# UFS: /dev/block/platform/13d60000.ufs/by-name/<name>
+#
+# S2' (console): ramdisk-only boot — init + hdcd live in the ramdisk;
+# system/vendor mounts deliberately DEFERRED until the dynamic-partition
+# (super/dm-linear) strategy is decided for S3'. Kernel cmdline supplies
+# ohos.required_mount entries matching the lines below when enabled.
+#
+# --- reserved for S3' (dynamic partitions inside super: dm-linear needed) ---
+# system   /usr     ext4  ro,barrier=1   wait,logical,first_stage_mount
+# vendor   /vendor  ext4  ro,barrier=1   wait,logical,first_stage_mount
+#
+# --- physical partitions (valid now) ---
+/dev/block/platform/13d60000.ufs/by-name/boot      /boot      emmc  defaults  recoveryonly
+/dev/block/platform/13d60000.ufs/by-name/recovery  /recovery  emmc  defaults  recoveryonly
+/dev/block/platform/13d60000.ufs/by-name/vbmeta    /vbmeta    emmc  defaults  first_stage_mount
+/dev/block/platform/13d60000.ufs/by-name/misc      /misc      emmc  defaults  defaults

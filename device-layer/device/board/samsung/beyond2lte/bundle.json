@@ -1,0 +1,31 @@
+{
+  "name": "@ohos/device_beyond2lte",
+  "version": "3.1",
+  "license": "Apache License 2.0",
+  "private": false,
+  "scripts": {},
+  "dirs": [
+    ""
+  ],
+  "component": {
+    "name": "device_beyond2lte",
+    "subsystem": "device_beyond2lte",
+    "syscap": [],
+    "features": [],
+    "deps": {
+      "components": [
+        "hilog"
+      ],
+      "third_party": [
+        "alsa-lib",
+        "libhybris"
+      ]
+    },
+    "build": {
+      "sub_component": [
+        "//device/board/samsung/beyond2lte:beyond2lte_group"
+      ],
+      "test": []
+    }
+  }
+}

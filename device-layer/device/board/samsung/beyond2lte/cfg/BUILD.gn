@@ -1,0 +1,94 @@
+# Copyright (c) 2026 Eclipse Oniro for OpenHarmony contributors.
+# SPDX-License-Identifier: Apache-2.0
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+# NOTE: the former hybris_graphic_env.cfg / z_hybris_hdf_env.cfg overlays
+# (per-service LIBEGL/LIBGLESV2/HYBRIS_LD_LIBRARY_PATH/LD_LIBRARY_PATH/
+# HYBRIS_EGLPLATFORM env vars) are gone: libhybris now compiles in
+# equivalent defaults (third_party/libhybris/libhybris_args.gni), and the
+# linker/EGL-platform plugins were always loaded by absolute path.  A
+# device that needs different values can still override per-service via
+# env in its init.<device>.cfg — the env vars keep priority over the
+# compiled-in defaults.
+
+ohos_prebuilt_etc("hybris_input_caps") {
+  source = "z_multimodalinput_caps.cfg"
+  relative_install_dir = "init"
+  install_images = [ "system" ]
+  part_name = "device_beyond2lte"
+  subsystem_name = "device_beyond2lte"
+}
+
+group("hybris_input_caps_group") {
+  deps = [ ":hybris_input_caps" ]
+}
+
+ohos_prebuilt_etc("hybris_hdcd_autostart") {
+  source = "z_hdcd_autostart.cfg"
+  relative_install_dir = "init"
+  install_images = [ "system" ]
+  part_name = "device_beyond2lte"
+  subsystem_name = "device_beyond2lte"
+}
+
+group("hybris_hdcd_autostart_group") {
+  deps = [ ":hybris_hdcd_autostart" ]
+}
+
+ohos_prebuilt_etc("hybris_device_node_perms") {
+  source = "z_device_node_perms.cfg"
+  relative_install_dir = "init"
+  install_images = [ "system" ]
+  part_name = "device_beyond2lte"
+  subsystem_name = "device_beyond2lte"
+}
+
+group("hybris_device_node_perms_group") {
+  deps = [ ":hybris_device_node_perms" ]
+}
+
+# Phase N8 — composer-ready gate.  Overlays composer_host/allocator_host
+# with start-mode=condition gated on the OHOS param
+# `android.composer.ready=1`, which the Phase N4 androidd watchdog
+# flips once Halium's HIDL IComposer registers with hwservicemanager.
+# Without this gate, those services start at OHOS init's boot trigger
+# and SIGSEGV because the Halium HAL stack isn't up yet.
+ohos_prebuilt_etc("hybris_composer_gate") {
+  source = "z_composer_host_gate.cfg"
+  relative_install_dir = "init"
+  install_images = [ "system" ]
+  part_name = "device_beyond2lte"
+  subsystem_name = "device_beyond2lte"
+}
+
+group("hybris_composer_gate_group") {
+  deps = [ ":hybris_composer_gate" ]
+}
+
+# Samsung configfs/FunctionFS bootstrap with native UDC discovery.
+# Installation does not prove enumeration; verify against actual phone runtime.
+ohos_prebuilt_etc("beyond2lte_usb_init") {
+  source = "init.beyond2lte.usb.cfg"
+  relative_install_dir = "init"
+  install_images = [ "system" ]
+  part_name = "device_beyond2lte"
+  subsystem_name = "device_beyond2lte"
+}
+
+# fstab.beyond2lte remains a reference: Android recoveryonly/emmc syntax and
+# unverified mount topology must be translated before it is installed by OH init.
+group("beyond2lte_cfg_group") {
+  deps = [ ":beyond2lte_usb_init" ]
+}

@@ -1,0 +1,46 @@
+From 2717f6661cca6da3d2ccbd56fa7f4aa9ea206dab Mon Sep 17 00:00:00 2001
+From: redminote11tech <redminote11tech@users.noreply.github.com>
+Date: Tue, 22 Sep 2026 17:49:19 +0100
+Subject: [PATCH 1/8] kbuild: downgrade GCC16-noisy -Werror= style classes to
+ warnings
+
+Bring-up against GCC 16.1.0: strict-prototypes/implicit-int/date-time/
+incompatible-pointer-types/designated-init fire on vendor C style.
+Keep them as warnings; real errors still surface via -Werror=implicit-
+function-declaration (line 426).
+---
+ Makefile | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 71fc858d1..f68e55e91 100644
+--- a/Makefile
++++ b/Makefile
+@@ -940,19 +940,19 @@ KBUILD_CFLAGS  += $(call cc-option,-fno-stack-check,)
+ KBUILD_CFLAGS   += $(call cc-option,-fconserve-stack)
+ 
+ # disallow errors like 'EXPORT_GPL(foo);' with missing header
+-KBUILD_CFLAGS   += $(call cc-option,-Werror=implicit-int)
++KBUILD_CFLAGS   += $(call cc-option,-Wno-error=implicit-int)
+ 
+ # require functions to have arguments in prototypes, not empty 'int foo()'
+-KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
++KBUILD_CFLAGS   += $(call cc-option,-Wno-error=strict-prototypes)
+ 
+ # Prohibit date/time macros, which would make the build non-deterministic
+-KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
++KBUILD_CFLAGS   += $(call cc-option,-Wno-error=date-time)
+ 
+ # enforce correct pointer usage
+-KBUILD_CFLAGS   += $(call cc-option,-Werror=incompatible-pointer-types)
++KBUILD_CFLAGS   += $(call cc-option,-Wno-error=incompatible-pointer-types)
+ 
+ # Require designated initializers for all marked structures
+-KBUILD_CFLAGS   += $(call cc-option,-Werror=designated-init)
++KBUILD_CFLAGS   += $(call cc-option,-Wno-error=designated-init)
+ 
+ # change __FILE__ to the relative path from the srctree
+ KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
+-- 
+2.55.0
+

@@ -1,0 +1,29 @@
+From 0a93f52ab4adf7936722f6147cabca805cb946b4 Mon Sep 17 00:00:00 2001
+From: redminote11tech <redminote11tech@users.noreply.github.com>
+Date: Tue, 22 Sep 2026 18:02:06 +0100
+Subject: [PATCH 3/8] dpu20 panels: noinline dsim_check_cb for GCC16 IPA
+ recursion error
+
+The callback address is stored in dsim->check_cb_info; GCC16's IPA
+follows the assignment and errors on recursive always-inlining.
+Emit out-of-line instead.
+---
+ drivers/video/fbdev/exynos/dpu20/panels/common_mipi_lcd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/video/fbdev/exynos/dpu20/panels/common_mipi_lcd.c b/drivers/video/fbdev/exynos/dpu20/panels/common_mipi_lcd.c
+index 2b9706178..dcf29dd8d 100644
+--- a/drivers/video/fbdev/exynos/dpu20/panels/common_mipi_lcd.c
++++ b/drivers/video/fbdev/exynos/dpu20/panels/common_mipi_lcd.c
+@@ -94,7 +94,7 @@ static int dsim_notify_panel(struct v4l2_subdev *sd,
+ 	return 0;
+ }
+ 
+-static inline int dsim_check_cb(struct dsim_device *dsim)
++static noinline int dsim_check_cb(struct dsim_device *dsim)
+ {
+ 	struct disp_check_cb_info *info = &dsim->check_cb_info;
+ 
+-- 
+2.55.0
+

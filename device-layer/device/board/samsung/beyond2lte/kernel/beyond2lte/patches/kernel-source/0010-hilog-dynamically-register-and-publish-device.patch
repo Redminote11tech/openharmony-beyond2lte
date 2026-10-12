@@ -1,0 +1,169 @@
+From: Samsung OpenHarmony port maintainers
+Subject: [PATCH] hilog: allocate a dynamic major and publish the device
+
+The hardware diagnostic returned -EBUSY when hilog requested fixed major
+245. Allocate a major by default, retaining an explicit valid major override.
+Publish /dev/hilog through class/device registration so devtmpfs and OH
+uevent management can discover the allocated number.
+
+Initialize the ring before exposing file operations, check registration
+results, unwind every failed initialization stage, propagate the failure,
+and release the buffer/device/class/region on exit. Add module ownership
+to the file operations. Preserve the existing two-minor reservation.
+
+Validation: targeted ARM64 object compilation only. Device creation, runtime
+read/write, fault-injection cleanup and OpenHarmony permissions remain
+unverified. The diagnostic boot proof predates this follow-up patch.
+
+diff --git a/drivers/staging/hilog/hilog.c b/drivers/staging/hilog/hilog.c
+index 808c7b2ce..432c8da6e 100644
+--- a/drivers/staging/hilog/hilog.c
++++ b/drivers/staging/hilog/hilog.c
+@@ -20,15 +20,12 @@
+ #include <linux/fs.h>
+ #include <linux/slab.h>
+ #include <linux/cdev.h>
++#include <linux/device.h>
+ #include <linux/sched.h>
+ #include <linux/time.h>
+ #include <linux/timex.h>
+ #include <linux/rtc.h>
+ 
+-#ifndef HILOGDEV_MAJOR
+-#define HILOGDEV_MAJOR 245
+-#endif
+-
+ #ifndef HILOG_NR_DEVS
+ #define HILOG_NR_DEVS 2
+ #endif
+@@ -37,11 +34,15 @@
+ #define MEMDEV_SIZE 4096
+ #endif
+ 
+-static int hilog_major = HILOGDEV_MAJOR;
++/* Zero selects a dynamic major, avoiding Samsung's existing character devices. */
++static int hilog_major;
+ 
+ module_param(hilog_major, int, 0444);
++MODULE_PARM_DESC(hilog_major, "Character device major (0 allocates dynamically)");
+ 
+ struct cdev g_hilog_cdev;
++static dev_t hilog_devno;
++static struct class *hilog_class;
+ 
+ #define HILOG_BUFFER CONFIG_HILOG_BUFFER_SIZE
+ #define HILOG_DRIVER "/dev/hilog"
+@@ -64,6 +65,7 @@ static ssize_t hilog_read(struct file *file,
+ 			  char __user *user_buf, size_t count, loff_t *ppos);
+ 
+ static const struct file_operations hilog_fops = {
++	.owner = THIS_MODULE,
+ 	.read = hilog_read,
+ 	.write = hilog_write,
+ };
+@@ -324,11 +326,11 @@ static ssize_t hilog_write(struct file *file,
+ 	return hilog_write_internal(user_buf, count);
+ }
+ 
+-static void hilog_device_init(void)
++static int hilog_device_init(void)
+ {
+ 	hilog_dev.buffer = kmalloc(HILOG_BUFFER, GFP_KERNEL);
+ 	if (!hilog_dev.buffer)
+-		return;
++		return -ENOMEM;
+ 
+ 	init_waitqueue_head(&hilog_dev.wq);
+ 	mutex_init(&hilog_dev.mtx);
+@@ -336,33 +338,75 @@ static void hilog_device_init(void)
+ 	hilog_dev.hdr_off = 0;
+ 	hilog_dev.size = 0;
+ 	hilog_dev.count = 0;
++	return 0;
+ }
+ 
+ static int __init hilogdev_init(void)
+ {
+ 	int result;
+-	dev_t devno = MKDEV(hilog_major, 0);
++	struct device *device;
+ 
+-	result = register_chrdev_region(devno, 2, "hilog");
+-	if (result < 0) {
+-		pr_emerg("\t register hilog error %d\n", result);
++	if (hilog_major < 0 || hilog_major >= CHRDEV_MAJOR_MAX)
++		return -EINVAL;
++
++	/* Initialize the buffer before cdev_add makes file operations reachable. */
++	result = hilog_device_init();
++	if (result)
+ 		return result;
++
++	if (hilog_major) {
++		hilog_devno = MKDEV(hilog_major, 0);
++		result = register_chrdev_region(hilog_devno, HILOG_NR_DEVS, "hilog");
++	} else {
++		result = alloc_chrdev_region(&hilog_devno, 0, HILOG_NR_DEVS, "hilog");
++	}
++	if (result)
++		goto free_buffer;
++
++	hilog_class = class_create(THIS_MODULE, "hilog");
++	if (IS_ERR(hilog_class)) {
++		result = PTR_ERR(hilog_class);
++		goto unregister_region;
+ 	}
+ 
+ 	cdev_init(&g_hilog_cdev, &hilog_fops);
+ 	g_hilog_cdev.owner = THIS_MODULE;
+ 	g_hilog_cdev.ops = &hilog_fops;
+ 
+-	cdev_add(&g_hilog_cdev, MKDEV(hilog_major, 0), HILOG_NR_DEVS);
++	result = cdev_add(&g_hilog_cdev, hilog_devno, HILOG_NR_DEVS);
++	if (result)
++		goto destroy_class;
+ 
+-	hilog_device_init();
++	/* Publish the expected path through devtmpfs/uevent, independently of major. */
++	device = device_create(hilog_class, NULL, hilog_devno, NULL, "hilog");
++	if (IS_ERR(device)) {
++		result = PTR_ERR(device);
++		goto delete_cdev;
++	}
++	pr_info("hilog: registered /dev/hilog at %u:%u\n",
++		MAJOR(hilog_devno), MINOR(hilog_devno));
+ 	return 0;
++
++delete_cdev:
++	cdev_del(&g_hilog_cdev);
++destroy_class:
++	class_destroy(hilog_class);
++unregister_region:
++	unregister_chrdev_region(hilog_devno, HILOG_NR_DEVS);
++free_buffer:
++	kfree(hilog_dev.buffer);
++	hilog_dev.buffer = NULL;
++	return result;
+ }
+ 
+ static void __exit hilog_exit_module(void)
+ {
++	device_destroy(hilog_class, hilog_devno);
+ 	cdev_del(&g_hilog_cdev);
+-	unregister_chrdev_region(MKDEV(hilog_major, 0), HILOG_NR_DEVS);
++	class_destroy(hilog_class);
++	unregister_chrdev_region(hilog_devno, HILOG_NR_DEVS);
++	kfree(hilog_dev.buffer);
++	hilog_dev.buffer = NULL;
+ }
+ 
+ static int __init hilog_init_module(void)
+@@ -370,7 +414,7 @@ static int __init hilog_init_module(void)
+ 	int state = hilogdev_init();
+ 
+ 	pr_info("\t hilog_init Start%d\n", state);
+-	return 0;
++	return state;
+ }
+ 
+ module_init(hilog_init_module);
