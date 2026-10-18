@@ -66,6 +66,25 @@ does not authorize redistribution of separate proprietary vendor blobs.
 
 ## Build on Crave
 
+### Source access and storage recovery
+
+`crave-source-recovery.sh` runs bounded diagnostics on an allocated build node.
+It records the source mount and whether the earlier checkout survived, lists
+exact release refs on GitCode and public GitHub mirrors, and attempts a real
+serial Git transfer of `developtools_profiler` with up to three attempts.
+It preserves existing sources and does not sync the full tree or compile.
+Matching mirror branch tips are reported for review; remotes are never silently
+changed. A matching ref does not itself prove that object or LFS transfers work.
+
+Normal source setup now refuses a full sync into container-root storage and
+requires 180 GiB free as a conservative build budget. Persistent storage must
+be established at the existing stable source location before building. After
+that check, all GitCode projects are fetched serially with bounded retries
+before the rest of the tree is synced. No new source downloads belong on the
+local PC.
+
+### Userspace build
+
 Read `AGENTS.md` and `CRAVE-RULES.md`, verify the queue is clear and use the
 existing workspace. Clone this public repository normally on the allocated
 build node, inspect/pin its Git revision, then execute its public script:

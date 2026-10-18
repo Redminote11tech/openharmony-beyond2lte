@@ -36,8 +36,8 @@
     {
       "path": "README.md",
       "license": "Apache-2.0; retain per-file notice",
-      "sha256": "d817d51a951cc29db6fded223090e5978e7a2396e7021fafd7722d92116a569a",
-      "bytes": 5009
+      "sha256": "84c29ada851bf8d0c137bdfd352a1586bb942e8abe21a8010e88c1b72d959468",
+      "bytes": 6008
     },
     {
       "path": "SOURCE-FILTERS.json",
@@ -54,20 +54,26 @@
     {
       "path": "crave-beyond2lte-pipeline.sh",
       "license": "Apache-2.0; retain per-file notice",
-      "sha256": "cb20d6275200745e2023002f0d3b11ca34fa452ae0c085249fdbf5ca1812f30a",
-      "bytes": 1489
+      "sha256": "2347ab6238b7fe2749d3deea340c76a0063bbff34489275d304efc5a4335c5d2",
+      "bytes": 1984
     },
     {
       "path": "crave-oniro-setup.sh",
       "license": "Apache-2.0; retain per-file notice",
-      "sha256": "114600b63edcaad1bc8e2f35f0ceefdb784f3cb0a047e65dd1d700e555743153",
-      "bytes": 1988
+      "sha256": "f847ff9746bdcd81a6a24331d35238e4162f7605abc07a9bb23a559e0376f076",
+      "bytes": 2874
     },
     {
       "path": "crave-readable-command.sh",
       "license": "Apache-2.0",
       "sha256": "0a1f94c744b75e8012856bb050ef5970b28d8d6b3e818b9654f178b927e43846",
       "bytes": 1154
+    },
+    {
+      "path": "crave-source-recovery.sh",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "70f9386bad1170243cb50a9ae12211e8b8a554e42b5afa2469055844ffd6e17c",
+      "bytes": 1685
     },
     {
       "path": "device-layer/BUILD-GRAPH-NOTES.md",
@@ -1118,6 +1124,12 @@
       "license": "Apache-2.0; retain per-file notice",
       "sha256": "fb08c64542124b47e8993aef8939d989a3bfb61e7b306830c6ba07385e1fe23c",
       "bytes": 287
+    },
+    {
+      "path": "tools/crave_source_access.py",
+      "license": "Apache-2.0; retain per-file notice",
+      "sha256": "86f255ff8c5e0f7442bf9cbce26cb4d50d8034c6fbac266305269aeedb35717e",
+      "bytes": 4668
     },
     {
       "path": "tools/integrate_device_layer.py",

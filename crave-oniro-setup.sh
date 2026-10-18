@@ -2,12 +2,25 @@
 # SOURCE PREPARATION ONLY. Execute this payload through crave run on a build
 # node, never inside devspace/SSH. Preserve /tmp/src/ohos workspace identity.
 set -euxo pipefail
+HERE=$(cd -- "$(dirname -- "$0")" && pwd)
 test "${CRAVE_BUILD_NODE:-}" = 1 || { echo 'Run only as a Crave build-node payload (CRAVE_BUILD_NODE=1).'; exit 1; }
 BASE=/tmp/src/ohos
 SRC="$BASE/ohsrc"
 mkdir -p "$SRC"
 cd "$SRC"
 df -h .
+# Refuse another full download into unverified container-root storage.
+# A supported persistent volume must be provisioned at the stable source path.
+mount_target=$(findmnt -n -T "$SRC" -o TARGET)
+if [[ -z $mount_target || $mount_target == / ]]; then
+    echo 'Full sync blocked: source is on container root; persistent storage must be established.' >&2
+    exit 1
+fi
+available_kib=$(df -Pk "$SRC" | awk 'NR==2 {print $4}')
+if (( available_kib < 180 * 1024 * 1024 )); then
+    echo 'Full sync blocked: require 180 GiB free as a conservative phone-build budget.' >&2
+    exit 1
+fi
 # Refuse to mix the old release-tarball layout with a Git source checkout.
 if test -f build.sh && ! test -d .repo; then
     echo 'Existing release source tree: stop and review it; no files were removed.'
@@ -32,7 +45,11 @@ command -v repo
 command -v git-lfs
 repo init --depth=1 -u https://github.com/eclipse-oniro4openharmony/manifest.git \
     -b OpenHarmony-6.1-LTS -m oniro.xml --no-repo-verify
-repo sync -c -j4
+export GIT_TERMINAL_PROMPT=0
+repo manifest -o "$BASE/oniro-source-manifest.xml"
+python3 "$HERE/tools/crave_source_access.py" "$BASE/oniro-source-manifest.xml" --fetch-all
+# Expensive remaining source transfer starts only after the known failures pass.
+repo sync -c -j4 --fail-fast
 repo forall -e -c 'git lfs pull'
 repo manifest -r -o "$BASE/oniro-resolved.xml"
 # Patch helper requires an explicit automation commit identity, not a global

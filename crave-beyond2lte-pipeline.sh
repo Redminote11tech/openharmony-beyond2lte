@@ -19,6 +19,18 @@ if [[ -d $HERE/.git ]]; then
     git -C "$HERE" rev-parse HEAD
 fi
 df -h .
+# Apply the same storage gate to already-patched trees as to fresh setup.
+mkdir -p "$SRC"
+mount_target=$(findmnt -n -T "$SRC" -o TARGET)
+if [[ -z $mount_target || $mount_target == / ]]; then
+    echo 'Build blocked: source persistence on container root is unverified.' >&2
+    exit 1
+fi
+available_kib=$(df -Pk "$SRC" | awk 'NR==2 {print $4}')
+if (( available_kib < 180 * 1024 * 1024 )); then
+    echo 'Build blocked: require 180 GiB free as a conservative phone-build budget.' >&2
+    exit 1
+fi
 if [[ -e $SRC/device/board/oniro/system_patch/.patch_state ]]; then
     echo 'Existing patch state: preserve sources and validate complete coverage/ancestry.'
     python3 "$HERE/tools/integrate_device_layer.py" "$SRC"
