@@ -64,6 +64,12 @@
       "bytes": 1988
     },
     {
+      "path": "crave-readable-command.sh",
+      "license": "Apache-2.0",
+      "sha256": "0a1f94c744b75e8012856bb050ef5970b28d8d6b3e818b9654f178b927e43846",
+      "bytes": 1154
+    },
+    {
       "path": "device-layer/BUILD-GRAPH-NOTES.md",
       "license": "Apache-2.0; retain per-file notice",
       "sha256": "30643116065ccd53448c1c31cc295fd31113af42ade83f5196a3b87b840aa1fe",
